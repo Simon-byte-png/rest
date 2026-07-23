@@ -1,6 +1,7 @@
 import DeviceActivity
 import FamilyControls
 import Foundation
+import ManagedSettings
 
 @MainActor
 final class DeviceActivityMonitoringModel: ObservableObject {
@@ -10,8 +11,12 @@ final class DeviceActivityMonitoringModel: ObservableObject {
 
     private static let appGroupIdentifier = "group.com.JenniferJi.Hush"
     private static let activityName = DeviceActivityName("hush.daily-monitor")
-    private static let eventName = DeviceActivityEvent.Name("hush.five-minute-threshold")
+    private static let eventName = DeviceActivityEvent.Name("hush.one-hour-threshold")
     private static let lastThresholdKey = "deviceActivity.lastThresholdDate"
+    private static let thresholdMinutes = 60
+    private static let managedSettingsStore = ManagedSettingsStore(
+        named: ManagedSettingsStore.Name("hush.interruption")
+    )
 
     private let center = DeviceActivityCenter()
     private let userDefaults = UserDefaults(suiteName: appGroupIdentifier)
@@ -21,7 +26,7 @@ final class DeviceActivityMonitoringModel: ObservableObject {
     }
 
     var monitoringStatusMessage: String {
-        isMonitoring ? "5 分钟测试监测已启用" : "尚未启动设备活动监测"
+        isMonitoring ? "1 小时使用监测已启用" : "尚未启动设备活动监测"
     }
 
     var lastThresholdMessage: String {
@@ -60,7 +65,7 @@ final class DeviceActivityMonitoringModel: ObservableObject {
                 applications: selection.applicationTokens,
                 categories: selection.categoryTokens,
                 webDomains: selection.webDomainTokens,
-                threshold: DateComponents(minute: 5),
+                threshold: DateComponents(minute: Self.thresholdMinutes),
                 includesPastActivity: false
             )
         } else {
@@ -68,12 +73,13 @@ final class DeviceActivityMonitoringModel: ObservableObject {
                 applications: selection.applicationTokens,
                 categories: selection.categoryTokens,
                 webDomains: selection.webDomainTokens,
-                threshold: DateComponents(minute: 5)
+                threshold: DateComponents(minute: Self.thresholdMinutes)
             )
         }
 
         do {
             center.stopMonitoring([Self.activityName])
+            Self.managedSettingsStore.clearAllSettings()
             try center.startMonitoring(
                 Self.activityName,
                 during: schedule,
@@ -89,6 +95,7 @@ final class DeviceActivityMonitoringModel: ObservableObject {
 
     func stopMonitoring() {
         center.stopMonitoring([Self.activityName])
+        Self.managedSettingsStore.clearAllSettings()
         errorMessage = nil
         refreshStatus()
     }
