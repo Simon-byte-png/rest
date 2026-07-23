@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RestSuggestion",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "should_offer_rest",
+    "reason_code",
+    "message",
+    "actions"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "should_offer_rest": {
+      "type": "boolean"
+    },
+    "reason_code": {
+      "type": "string",
+      "enum": [
+        "long_continuous_use",
+        "attention_fragmentation",
+        "late_hour",
+        "low_energy",
+        "manual",
+        "cooldown",
+        "insufficient_signal"
+      ]
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 240
+    },
+    "default_quest_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "start_rest_session",
+          "open_check_in",
+          "remind_later",
+          "dismiss"
+        ]
+      }
+    }
+  }
+}

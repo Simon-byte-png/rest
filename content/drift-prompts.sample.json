@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "prompts": [
+    {
+      "id": "sense_far_sound",
+      "category": "sense",
+      "text": "此刻房间里最远的声音是什么？"
+    },
+    {
+      "id": "recall_small_comfort",
+      "category": "recall",
+      "text": "今天有没有一个很小、但让你舒服的瞬间？"
+    },
+    {
+      "id": "imagine_weather",
+      "category": "imagine",
+      "text": "如果今天的疲惫是一种天气，它是什么样的？"
+    }
+  ],
+  "privacy": "answers_are_not_collected_or_saved"
+}

@@ -1,0 +1,21 @@
+{
+  "version": "0.1.0",
+  "status": "placeholder_pending_bluebox_review",
+  "cards": [
+    {
+      "id": "supported_body_scan_demo",
+      "context": [
+        "bedtime_arousal"
+      ],
+      "duration_seconds": 300,
+      "title": "感受身体被托住的位置",
+      "steps": [
+        "把手机放下",
+        "注意头、肩膀和背部被托住的位置",
+        "不需要主动改变呼吸"
+      ],
+      "medical_claims": false,
+      "reviewed_by_bluebox": false
+    }
+  ]
+}

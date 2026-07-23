@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FatigueReflection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "fatigue_type",
+    "reflection",
+    "needs_follow_up"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "fatigue_type": {
+      "type": "string",
+      "enum": [
+        "physical",
+        "sensory_overload",
+        "cognitive_overload",
+        "emotional_social",
+        "bedtime_arousal",
+        "unknown"
+      ]
+    },
+    "reflection": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "needs_follow_up": {
+      "type": "boolean"
+    },
+    "follow_up": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "question",
+        "options"
+      ],
+      "properties": {
+        "question": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "maxLength": 30
+          }
+        }
+      }
+    },
+    "safety_notice": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300
+    }
+  }
+}

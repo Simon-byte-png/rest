@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hush.local/contracts/common.schema.json",
+  "title": "Hush Common Types",
+  "$defs": {
+    "SchemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "RequestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "Platform": {
+      "type": "string",
+      "enum": [
+        "ios",
+        "ipados",
+        "macos",
+        "imessage"
+      ]
+    },
+    "TriggerSource": {
+      "type": "string",
+      "enum": [
+        "manual_ios",
+        "manual_macos",
+        "notification",
+        "live_activity",
+        "photon_message",
+        "device_activity_threshold",
+        "macos_rule",
+        "sleep_handoff",
+        "debug"
+      ]
+    },
+    "FatigueType": {
+      "type": "string",
+      "enum": [
+        "physical",
+        "sensory_overload",
+        "cognitive_overload",
+        "emotional_social",
+        "bedtime_arousal",
+        "unknown"
+      ]
+    },
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "INVALID_REQUEST",
+        "CONTRACT_VERSION_UNSUPPORTED",
+        "CONTENT_VERSION_MISMATCH",
+        "LLM_TIMEOUT",
+        "LLM_INVALID_OUTPUT",
+        "GMAIL_NOT_CONNECTED",
+        "GMAIL_UNAVAILABLE",
+        "GMAIL_RATE_LIMITED",
+        "GMAIL_DRAFT_FAILED",
+        "PHOTON_UNAVAILABLE",
+        "PHOTON_SIGNATURE_INVALID",
+        "JOB_NOT_FOUND",
+        "JOB_FAILED",
+        "DEMO_MODE_DISABLED",
+        "INTERNAL_ERROR"
+      ]
+    }
+  }
+}

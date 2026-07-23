@@ -1,0 +1,82 @@
+[
+  {
+    "id": "wash_face_01",
+    "content_version": "1.0.0",
+    "title": "去洗把脸",
+    "fatigue_types": [
+      "cognitive_overload",
+      "sensory_overload"
+    ],
+    "duration_seconds": 120,
+    "energy_required": "low",
+    "location_tags": [
+      "home",
+      "office_with_restroom"
+    ],
+    "time_tags": [
+      "day",
+      "evening"
+    ],
+    "steps": [
+      "把手机留在这里",
+      "去洗一把脸",
+      "注意水碰到眼睛周围的感觉"
+    ],
+    "requires_screen": false,
+    "safety_note": null,
+    "anchor_compatible": false
+  },
+  {
+    "id": "look_far_01",
+    "content_version": "1.0.0",
+    "title": "找一个远处的点",
+    "fatigue_types": [
+      "sensory_overload",
+      "cognitive_overload"
+    ],
+    "duration_seconds": 60,
+    "energy_required": "very_low",
+    "location_tags": [
+      "any"
+    ],
+    "time_tags": [
+      "day",
+      "evening"
+    ],
+    "steps": [
+      "把屏幕扣下或熄灭",
+      "看向房间里最远的地方",
+      "让视线停留一分钟"
+    ],
+    "requires_screen": false,
+    "safety_note": null,
+    "anchor_compatible": false
+  },
+  {
+    "id": "water_no_phone_01",
+    "content_version": "1.0.0",
+    "title": "不带手机接一杯水",
+    "fatigue_types": [
+      "physical",
+      "cognitive_overload",
+      "emotional_social"
+    ],
+    "duration_seconds": 180,
+    "energy_required": "low",
+    "location_tags": [
+      "home",
+      "office"
+    ],
+    "time_tags": [
+      "any"
+    ],
+    "steps": [
+      "把手机留在这里",
+      "去接一杯水",
+      "慢慢走回来"
+    ],
+    "requires_screen": false,
+    "safety_note": "注意地面和周围环境安全。",
+    "anchor_compatible": true
+  }
+]

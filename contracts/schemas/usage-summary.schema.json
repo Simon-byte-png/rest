@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UsageSummary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "measured_at",
+    "platform",
+    "trigger_source",
+    "local_hour",
+    "minutes_since_last_rest",
+    "raw_app_names_included"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "measured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "ios",
+        "ipados",
+        "macos"
+      ]
+    },
+    "trigger_source": {
+      "type": "string",
+      "enum": [
+        "device_activity_threshold",
+        "macos_rule",
+        "manual_ios",
+        "manual_macos",
+        "notification",
+        "debug"
+      ]
+    },
+    "continuous_screen_minutes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "app_switches_last_10_minutes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "local_hour": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 23
+    },
+    "minutes_since_last_rest": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "self_reported_energy": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 5
+    },
+    "recent_feedback": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "too_early",
+          "right",
+          "too_late"
+        ]
+      }
+    },
+    "raw_app_names_included": {
+      "type": "boolean",
+      "const": false
+    }
+  }
+}

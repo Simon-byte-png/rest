@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RestFeedback",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "session_id",
+    "quest_id",
+    "helpfulness",
+    "timing",
+    "recorded_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "quest_id": {
+      "type": "string"
+    },
+    "helpfulness": {
+      "type": "string",
+      "enum": [
+        "helped",
+        "no_change",
+        "interrupted"
+      ]
+    },
+    "timing": {
+      "type": "string",
+      "enum": [
+        "too_early",
+        "right",
+        "too_late",
+        "manual_not_applicable"
+      ]
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300
+    }
+  }
+}

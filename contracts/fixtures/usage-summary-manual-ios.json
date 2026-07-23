@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_usage_001",
+  "measured_at": "2026-07-24T15:20:00+08:00",
+  "platform": "ios",
+  "trigger_source": "manual_ios",
+  "continuous_screen_minutes": null,
+  "app_switches_last_10_minutes": null,
+  "local_hour": 15,
+  "minutes_since_last_rest": 96,
+  "self_reported_energy": 3,
+  "recent_feedback": [],
+  "raw_app_names_included": false
+}

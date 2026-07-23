@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RestQuest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "content_version",
+    "title",
+    "fatigue_types",
+    "duration_seconds",
+    "energy_required",
+    "location_tags",
+    "time_tags",
+    "steps",
+    "requires_screen"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_\\-]+$"
+    },
+    "content_version": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "fatigue_types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "physical",
+          "sensory_overload",
+          "cognitive_overload",
+          "emotional_social",
+          "bedtime_arousal",
+          "unknown"
+        ]
+      }
+    },
+    "duration_seconds": {
+      "type": "integer",
+      "minimum": 20,
+      "maximum": 600
+    },
+    "energy_required": {
+      "type": "string",
+      "enum": [
+        "very_low",
+        "low",
+        "medium"
+      ]
+    },
+    "location_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "time_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "day",
+          "evening",
+          "bedtime",
+          "any"
+        ]
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": {
+        "type": "string",
+        "maxLength": 120
+      }
+    },
+    "requires_screen": {
+      "type": "boolean"
+    },
+    "safety_note": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 200
+    },
+    "anchor_compatible": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

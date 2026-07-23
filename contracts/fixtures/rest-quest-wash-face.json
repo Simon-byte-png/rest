@@ -1,0 +1,27 @@
+{
+  "id": "wash_face_01",
+  "content_version": "1.0.0",
+  "title": "去洗把脸",
+  "fatigue_types": [
+    "cognitive_overload",
+    "sensory_overload"
+  ],
+  "duration_seconds": 120,
+  "energy_required": "low",
+  "location_tags": [
+    "home",
+    "office_with_restroom"
+  ],
+  "time_tags": [
+    "day",
+    "evening"
+  ],
+  "steps": [
+    "把手机留在这里",
+    "去洗一把脸",
+    "注意水碰到眼睛周围的感觉"
+  ],
+  "requires_screen": false,
+  "safety_note": null,
+  "anchor_compatible": false
+}

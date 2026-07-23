@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_checkin_001",
+  "session_id": "rs_demo_001",
+  "source": "manual_ios",
+  "description": "我脑子很满，但是身体又停不下来",
+  "input_mode": "text",
+  "available_minutes": 3,
+  "willing_to_move": true,
+  "current_place": "desk",
+  "follow_up_answer": null
+}

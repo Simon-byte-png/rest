@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_recommend_001",
+  "content_version": "1.0.0",
+  "quest_id": "wash_face_01",
+  "reason_code": "cognitive_overload_move_preference",
+  "intro": "先让身体帮大脑慢下来。",
+  "fallback_quest_id": "look_far_01"
+}

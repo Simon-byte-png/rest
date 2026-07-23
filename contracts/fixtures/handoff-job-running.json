@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_handoff_001",
+  "job_id": "hj_demo_001",
+  "status": "running",
+  "progress_stage": "classifying",
+  "estimated_wait_seconds": 35,
+  "summary": null,
+  "error": null
+}

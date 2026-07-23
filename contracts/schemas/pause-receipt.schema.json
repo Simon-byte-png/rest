@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PauseReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "coverage",
+    "held_items",
+    "conclusion"
+  ],
+  "properties": {
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included_sources",
+        "excluded_sources",
+        "since"
+      ],
+      "properties": {
+        "included_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "since": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "held_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "gmail_draft_saved",
+              "saved_for_tomorrow",
+              "needs_review",
+              "not_saved"
+            ]
+          }
+        }
+      }
+    },
+    "tomorrow_first_step": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300
+    },
+    "conclusion": {
+      "type": "string",
+      "maxLength": 400
+    },
+    "coverage_note": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300
+    }
+  }
+}

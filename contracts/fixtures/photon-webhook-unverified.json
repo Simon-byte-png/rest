@@ -1,0 +1,10 @@
+{
+  "_notice": "Day 1 后替换为经过验证并脱敏的真实 Photon webhook payload。不得让业务层直接依赖本文件结构。",
+  "provider": "photon",
+  "event_type": "message.received",
+  "event_id": "evt_demo_001",
+  "payload": {
+    "sender": "<redacted>",
+    "text": "我累了"
+  }
+}

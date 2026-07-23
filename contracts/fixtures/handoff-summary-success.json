@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_handoff_001",
+  "job_id": "hj_demo_001",
+  "total_unread": 8,
+  "tonight_required": [],
+  "tomorrow": [
+    {
+      "id": "m1",
+      "from": "李老师",
+      "subject": "关于时间确认",
+      "gist": "希望确认周五下午是否有空",
+      "priority_reason": "有明确时间确认请求，但无需今晚完成",
+      "draft_saved": true
+    }
+  ],
+  "no_action_count": 6,
+  "uncertain": [
+    {
+      "id": "m2",
+      "from": "活动组织方",
+      "subject": "请确认材料",
+      "gist": "正文没有明确截止时间",
+      "priority_reason": "缺少截止时间，无法安全判断",
+      "draft_saved": false
+    }
+  ],
+  "drafts": [
+    {
+      "for_item_id": "m1",
+      "preview": "李老师您好，周五下午 3 点后我有空……",
+      "saved": true,
+      "gmail_draft_id": "r-123"
+    }
+  ],
+  "pause_receipt": {
+    "coverage": {
+      "included_sources": [
+        "authorized_gmail",
+        "user_submitted_open_loops"
+      ],
+      "excluded_sources": [
+        "wechat",
+        "phone_calls",
+        "other_unconnected_channels"
+      ],
+      "since": "2026-07-24T22:00:00+08:00"
+    },
+    "held_items": [
+      {
+        "id": "ol_001",
+        "title": "回复李老师",
+        "status": "gmail_draft_saved"
+      },
+      {
+        "id": "ol_002",
+        "title": "检查首页深色模式按钮",
+        "status": "saved_for_tomorrow"
+      },
+      {
+        "id": "m2",
+        "title": "确认活动材料截止时间",
+        "status": "needs_review"
+      }
+    ],
+    "tomorrow_first_step": "先查看活动材料邮件的截止时间，再检查首页 PrimaryButton 主题变量。",
+    "conclusion": "在已授权 Gmail 和你主动交接的事项中，没有发现必须今晚处理的内容。",
+    "coverage_note": "微信、电话和其他未连接渠道不在本次覆盖范围内。"
+  }
+}

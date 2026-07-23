@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_evaluate_002",
+  "should_offer_rest": false,
+  "reason_code": "insufficient_signal",
+  "message": "现在不打扰你。",
+  "default_quest_id": null,
+  "actions": [
+    "dismiss"
+  ]
+}

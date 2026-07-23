@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_checkin_001",
+  "fatigue_type": "cognitive_overload",
+  "reflection": "听起来不像单纯的困，更像是接收了太多信息，大脑还没有慢下来。",
+  "needs_follow_up": true,
+  "follow_up": {
+    "question": "你现在更想安静一点，还是让身体先动起来？",
+    "options": [
+      "quiet",
+      "move"
+    ]
+  },
+  "safety_notice": null
+}

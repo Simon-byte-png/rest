@@ -1,0 +1,29 @@
+# Replace placeholders with real GitHub usernames before development.
+
+/apps/HushApp/Hush.xcodeproj/**                @M1_GITHUB
+/apps/HushApp/**/*.entitlements                @M1_GITHUB
+/apps/HushApp/Shared/Core/**                    @M1_GITHUB
+/apps/HushApp/iOSApp/**                         @M1_GITHUB
+/apps/HushApp/MacMenuBar/**                     @M1_GITHUB
+/apps/HushApp/DeviceActivityMonitorExt/**       @M1_GITHUB
+/apps/HushApp/RestLiveActivityWidget/**         @M1_GITHUB
+
+/apps/HushApp/Shared/Features/**                @M2_GITHUB
+/apps/HushApp/Shared/DesignSystem/**            @M2_GITHUB
+/content/**                                     @M2_GITHUB
+
+/server/src/api/**                              @W1_GITHUB
+/server/src/application/**                      @W1_GITHUB
+/server/src/domain/**                           @W1_GITHUB
+/server/src/agent/**                            @W1_GITHUB
+/server/src/mail/**                             @W1_GITHUB
+/server/src/jobs/**                             @W1_GITHUB
+/server/package.json                            @W1_GITHUB
+/server/pnpm-lock.yaml                          @W1_GITHUB
+
+/server/src/messaging/**                        @W2_GITHUB
+/.github/**                                     @W2_GITHUB
+/scripts/gen-qr.*                               @W2_GITHUB
+
+/contracts/**                                   @W1_GITHUB @M1_GITHUB
+/AGENTS.md                                      @M1_GITHUB @W1_GITHUB

@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_error_001",
+  "error": {
+    "code": "LLM_INVALID_OUTPUT",
+    "message": "Agent 返回的结构不符合契约。",
+    "retryable": true,
+    "fallback": "CANNED_LLM",
+    "details": null
+  }
+}

@@ -1,0 +1,31 @@
+name: Development Task
+description: Hush task card
+title: "[TASK] "
+body:
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      placeholder: M1 / M2 / W1 / W2
+    validations:
+      required: true
+  - type: textarea
+    id: paths
+    attributes:
+      label: Allowed paths
+    validations:
+      required: true
+  - type: textarea
+    id: contracts
+    attributes:
+      label: Contracts and fixtures
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
+  - type: textarea
+    id: forbidden
+    attributes:
+      label: Forbidden changes

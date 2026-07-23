@@ -1,0 +1,103 @@
+# 06｜环境、密钥、OAuth 与部署协议
+
+## 1. 固定版本
+
+- Node.js 20.x
+- pnpm 9.x
+- TypeScript 5.x
+- Swift 5.10+
+- Xcode 16
+- iOS Deployment Target：由 M1 开工前冻结
+- Contract Version：`1.0`
+
+## 2. 后端环境变量
+
+见根 `.env.example`。
+
+规则：
+
+- `.env`、OAuth token、refresh token 不提交。
+- Photon API key 不进入 Apple 客户端。
+- Claude API key 不进入 Apple 客户端。
+- Gmail client secret 不进入 Apple 客户端。
+- Demo Gmail 账号密码不进仓库和群聊明文。
+- 生产/演示 token 使用托管平台 Secret。
+- 服务器日志不得打印邮件正文、OAuth token、Guided Drift 内容。
+
+## 3. Gmail
+
+黑客松默认：
+
+- 预先准备 Demo Gmail 账号。
+- 现场前完成 OAuth 授权和 refresh token 保存。
+- Scopes 以实际实现为准；代码路径只创建草稿，不调用发送。
+- Seed script 必须可清理并重建演示邮件。
+- 草稿标题加固定 Demo 前缀，便于去重和清理。
+- 用户设备现场不依赖访问 Google OAuth 页面。
+
+## 4. Photon
+
+Day 1 冻结：
+
+- 实际 line 类型。
+- Webhook URL。
+- 签名验证方式。
+- 事件 ID 和重试行为。
+- 中国区 iPhone 实测结论。
+- 主动外发限制。
+- 备用 ConsoleChannel / Telegram 结论。
+
+供应商原始 payload 只能存在 adapter 与 fixture 中，业务层统一使用内部模型。
+
+## 5. 部署
+
+建议环境：
+
+```text
+demo
+```
+
+单独于本地开发。
+
+部署要求：
+
+- HTTPS。
+- `/v1/health` 可外部访问。
+- Photon webhook 可达。
+- Sample Mode 需要 Secret。
+- 每次部署保留上一可用版本。
+- Demo 前冻结部署；Photon line 与 webhook 路由不再修改。
+- 保存一份本地 ConsoleChannel 启动方式。
+
+## 6. 日志
+
+允许：
+
+- request_id
+- endpoint
+- duration_ms
+- status
+- data_origin
+- job stage
+- provider error code
+
+禁止：
+
+- 邮件正文
+- Gmail token
+- Photon 私人消息全文（除临时调试且必须删除）
+- Guided Drift 答案
+- API key
+- 用户健康推断
+
+## 7. 本地端口
+
+建议：
+
+```text
+Backend: 3000
+Contract docs: 3001（可选）
+Apple Client: 连接配置中的 base URL
+```
+
+实际端口在开工时冻结。

@@ -1,0 +1,311 @@
+openapi: 3.1.0
+info:
+  title: Hush API
+  version: 1.0.0
+  description: >
+    Contract for Hush Apple clients, Agent backend, Gmail handoff, and Photon adapter.
+    Quest steps are canonical in the fixed content library; the backend primarily returns quest_id.
+servers:
+  - url: https://api.example.com
+    description: Demo
+  - url: http://localhost:3000
+    description: Local
+tags:
+  - name: Health
+  - name: Rest
+  - name: Handoff
+  - name: Gmail
+  - name: Photon
+
+paths:
+  /v1/health:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, contract_version]
+                properties:
+                  status: { type: string, const: ok }
+                  contract_version: { type: string, const: "1.0" }
+                  providers:
+                    type: object
+                    additionalProperties:
+                      type: string
+                      enum: [ready, degraded, unavailable, unknown]
+
+  /v1/rest/evaluate:
+    post:
+      tags: [Rest]
+      operationId: evaluateRest
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/usage-summary.schema.json"
+      responses:
+        "200":
+          description: Rest suggestion
+          headers:
+            X-Hush-Data-Origin:
+              $ref: "#/components/headers/DataOrigin"
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/rest-suggestion.schema.json"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /v1/rest/check-in:
+    post:
+      tags: [Rest]
+      operationId: reflectFatigue
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/fatigue-check-in.schema.json"
+      responses:
+        "200":
+          description: Fatigue reflection; at most one follow-up
+          headers:
+            X-Hush-Data-Origin:
+              $ref: "#/components/headers/DataOrigin"
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/fatigue-reflection.schema.json"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /v1/rest/recommend:
+    post:
+      tags: [Rest]
+      operationId: recommendQuest
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/rest-recommendation.schema.json#/$defs/RestRecommendationRequest"
+      responses:
+        "200":
+          description: Quest ID selected from fixed content
+          headers:
+            X-Hush-Data-Origin:
+              $ref: "#/components/headers/DataOrigin"
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/rest-recommendation.schema.json#/$defs/RestQuestRecommendation"
+        "409":
+          $ref: "#/components/responses/Error"
+
+  /v1/rest/feedback:
+    post:
+      tags: [Rest]
+      operationId: recordRestFeedback
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/rest-feedback.schema.json"
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /v1/handoff/start:
+    post:
+      tags: [Handoff]
+      operationId: startHandoff
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/handoff-start-request.schema.json"
+      responses:
+        "202":
+          description: Handoff job created or existing idempotent job returned
+          headers:
+            X-Hush-Data-Origin:
+              $ref: "#/components/headers/DataOrigin"
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/handoff-job.schema.json#/$defs/HandoffJob"
+        "400":
+          $ref: "#/components/responses/Error"
+
+  /v1/handoff/{jobId}:
+    get:
+      tags: [Handoff]
+      operationId: getHandoffJob
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Current state
+          headers:
+            X-Hush-Data-Origin:
+              $ref: "#/components/headers/DataOrigin"
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/handoff-job.schema.json#/$defs/HandoffJobState"
+        "404":
+          $ref: "#/components/responses/Error"
+
+  /v1/handoff/{jobId}/cancel:
+    post:
+      tags: [Handoff]
+      operationId: cancelHandoff
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "202":
+          description: Cancellation requested
+        "404":
+          $ref: "#/components/responses/Error"
+
+  /v1/auth/gmail/start:
+    get:
+      tags: [Gmail]
+      operationId: startGmailOAuth
+      parameters:
+        - name: return_to
+          in: query
+          schema: { type: string }
+      responses:
+        "302":
+          description: Redirect to Google OAuth
+
+  /v1/auth/gmail/callback:
+    get:
+      tags: [Gmail]
+      operationId: gmailOAuthCallback
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema: { type: string }
+        - name: state
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "302":
+          description: Redirect to app or success page
+
+  /v1/auth/gmail/status:
+    get:
+      tags: [Gmail]
+      operationId: getGmailStatus
+      responses:
+        "200":
+          description: Gmail connection status
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [connected]
+                properties:
+                  connected: { type: boolean }
+                  account_label: { type: [string, "null"] }
+                  scopes:
+                    type: array
+                    items: { type: string }
+
+  /v1/auth/gmail/disconnect:
+    post:
+      tags: [Gmail]
+      operationId: disconnectGmail
+      responses:
+        "204":
+          description: Disconnected
+
+  /v1/webhooks/photon:
+    post:
+      tags: [Photon]
+      operationId: receivePhotonWebhook
+      description: >
+        Provider payload is isolated in the Photon adapter. Exact payload schema must be frozen
+        after Day-1 verification; business code must not consume the raw provider shape.
+      parameters:
+        - name: X-Photon-Signature
+          in: header
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "202":
+          description: Accepted
+        "401":
+          description: Invalid signature
+
+components:
+  parameters:
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 8
+
+  headers:
+    DataOrigin:
+      schema:
+        type: string
+        enum: [real, mock, cached]
+
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: "./schemas/error-response.schema.json"

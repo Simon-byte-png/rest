@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HandoffJobContracts",
+  "$defs": {
+    "HandoffJob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "request_id",
+        "job_id",
+        "status",
+        "estimated_wait_seconds",
+        "micro_reset_available"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.0"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "job_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "running"
+          ]
+        },
+        "estimated_wait_seconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "micro_reset_available": {
+          "type": "boolean"
+        }
+      }
+    },
+    "HandoffJobState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "request_id",
+        "job_id",
+        "status",
+        "progress_stage"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.0"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "job_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "running",
+            "succeeded",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "progress_stage": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "fetching_mail",
+            "classifying",
+            "creating_drafts",
+            "preparing_receipt",
+            "completed",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "estimated_wait_seconds": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "summary": {
+          "oneOf": [
+            {
+              "$ref": "./handoff-summary.schema.json"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error": {
+          "oneOf": [
+            {
+              "$ref": "./error-response.schema.json"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

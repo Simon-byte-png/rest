@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RestRecommendationContracts",
+  "$defs": {
+    "RestRecommendationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "request_id",
+        "session_id",
+        "content_version",
+        "fatigue_type",
+        "available_minutes",
+        "source"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.0"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "content_version": {
+          "type": "string"
+        },
+        "fatigue_type": {
+          "type": "string",
+          "enum": [
+            "physical",
+            "sensory_overload",
+            "cognitive_overload",
+            "emotional_social",
+            "bedtime_arousal",
+            "unknown"
+          ]
+        },
+        "user_preference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "quiet",
+            "move",
+            "surprise",
+            null
+          ]
+        },
+        "available_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "source": {
+          "type": "string"
+        },
+        "location_tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded_quest_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowed_quest_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "RestQuestRecommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "request_id",
+        "content_version",
+        "quest_id",
+        "reason_code"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.0"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "content_version": {
+          "type": "string"
+        },
+        "quest_id": {
+          "type": "string"
+        },
+        "reason_code": {
+          "type": "string"
+        },
+        "intro": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "fallback_quest_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

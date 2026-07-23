@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HandoffSummary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "job_id",
+    "total_unread",
+    "tonight_required",
+    "tomorrow",
+    "no_action_count",
+    "uncertain",
+    "drafts",
+    "pause_receipt"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "total_unread": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tonight_required": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MailSummaryItem"
+      }
+    },
+    "tomorrow": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MailSummaryItem"
+      }
+    },
+    "no_action_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "uncertain": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MailSummaryItem"
+      }
+    },
+    "drafts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DraftSummary"
+      }
+    },
+    "pause_receipt": {
+      "$ref": "./pause-receipt.schema.json"
+    }
+  },
+  "$defs": {
+    "MailSummaryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "from",
+        "subject",
+        "gist",
+        "priority_reason",
+        "draft_saved"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "gist": {
+          "type": "string"
+        },
+        "priority_reason": {
+          "type": "string"
+        },
+        "draft_saved": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DraftSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "for_item_id",
+        "preview",
+        "saved"
+      ],
+      "properties": {
+        "for_item_id": {
+          "type": "string"
+        },
+        "preview": {
+          "type": "string"
+        },
+        "saved": {
+          "type": "boolean"
+        },
+        "gmail_draft_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}
