@@ -16,6 +16,8 @@
 		A00000000000000000000007 /* HushDeviceActivityMonitor.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B00000000000000000000103 /* HushDeviceActivityMonitor.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A00000000000000000000008 /* HushRestLiveActivity.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B00000000000000000000104 /* HushRestLiveActivity.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A00000000000000000000009 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift */; };
+		A00000000000000000000010 /* iOSApp/Platform/FamilyActivitySelectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000011 /* iOSApp/Platform/FamilyActivitySelectionStore.swift */; };
+		A00000000000000000000011 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000012 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +63,8 @@
 		B00000000000000000000008 /* RestLiveActivityWidget/HushRestLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestLiveActivityWidget/HushRestLiveActivity.swift; sourceTree = "<group>"; };
 		B00000000000000000000009 /* RestLiveActivityWidget/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = RestLiveActivityWidget/Info.plist; sourceTree = "<group>"; };
 		B00000000000000000000010 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/FamilyControlsAuthorizationModel.swift; sourceTree = "<group>"; };
+		B00000000000000000000011 /* iOSApp/Platform/FamilyActivitySelectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/FamilyActivitySelectionStore.swift; sourceTree = "<group>"; };
+		B00000000000000000000012 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/DeviceActivityMonitoringModel.swift; sourceTree = "<group>"; };
 		B00000000000000000000101 /* Hush.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hush.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000102 /* HushMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HushMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000103 /* HushDeviceActivityMonitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HushDeviceActivityMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -135,6 +139,8 @@
 			children = (
 				B00000000000000000000001 /* iOSApp/App/HushApp.swift */,
 				B00000000000000000000010 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift */,
+				B00000000000000000000011 /* iOSApp/Platform/FamilyActivitySelectionStore.swift */,
+				B00000000000000000000012 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift */,
 				B00000000000000000000002 /* iOSApp/Hush.entitlements */,
 			);
 			name = iOSApp;
@@ -341,6 +347,8 @@
 				A00000000000000000000001 /* iOSApp/App/HushApp.swift in Sources */,
 				A00000000000000000000002 /* Shared/Core/HushProduct.swift in Sources */,
 				A00000000000000000000009 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift in Sources */,
+				A00000000000000000000010 /* iOSApp/Platform/FamilyActivitySelectionStore.swift in Sources */,
+				A00000000000000000000011 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -502,6 +510,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Hush;
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -528,6 +538,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Hush;
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
