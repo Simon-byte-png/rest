@@ -1,0 +1,277 @@
+[
+  {
+    "id": "wash_face_01",
+    "content_version": "1.0.0",
+    "title": "去洗把脸",
+    "fatigue_types": [
+      "cognitive_overload",
+      "sensory_overload"
+    ],
+    "duration_seconds": 120,
+    "energy_required": "low",
+    "location_tags": [
+      "home",
+      "office_with_restroom"
+    ],
+    "time_tags": [
+      "day",
+      "evening"
+    ],
+    "steps": [
+      "把手机留在这里",
+      "去洗一把脸",
+      "注意水碰到眼睛周围的感觉"
+    ],
+    "requires_screen": false,
+    "safety_note": null,
+    "anchor_compatible": false
+  },
+  {
+    "id": "look_far_01",
+    "content_version": "1.0.0",
+    "title": "找一个远处的点",
+    "fatigue_types": [
+      "sensory_overload",
+      "cognitive_overload",
+      "unknown"
+    ],
+    "duration_seconds": 60,
+    "energy_required": "very_low",
+    "location_tags": [
+      "any"
+    ],
+    "time_tags": [
+      "day",
+      "evening",
+      "any"
+    ],
+    "steps": [
+      "把屏幕扣下或熄灭",
+      "看向房间里最远的地方",
+      "让视线停留一分钟"
+    ],
+    "requires_screen": false,
+    "safety_note": null,
+    "anchor_compatible": false
+  },
+  {
+    "id": "water_no_phone_01",
+    "content_version": "1.0.0",
+    "title": "不带手机接一杯水",
+    "fatigue_types": [
+      "physical",
+      "cognitive_overload",
+      "emotional_social"
+    ],
+    "duration_seconds": 180,
+    "energy_required": "low",
+    "location_tags": [
+      "home",
+      "office"
+    ],
+    "time_tags": [
+      "any"
+    ],
+    "steps": [
+      "把手机留在这里",
+      "去接一杯水",
+      "慢慢走回来"
+    ],
+    "requires_screen": false,
+    "safety_note": "注意地面和周围环境安全。",
+    "anchor_compatible": true
+  },
+  {
+    "id": "shoulder_release_01",
+    "content_version": "1.0.0",
+    "title": "让肩膀暂时不用工作",
+    "fatigue_types": [
+      "physical",
+      "cognitive_overload"
+    ],
+    "duration_seconds": 90,
+    "energy_required": "very_low",
+    "location_tags": [
+      "seated",
+      "home",
+      "office"
+    ],
+    "time_tags": [
+      "any"
+    ],
+    "steps": [
+      "让双手离开键盘或手机",
+      "感受肩膀现在的位置",
+      "不使劲，把手臂的重量交给椅子或腿"
+    ],
+    "requires_screen": false,
+    "safety_note": "只在舒服的范围内停留，不需要拉伸到疼痛。",
+    "anchor_compatible": true
+  },
+  {
+    "id": "window_walk_01",
+    "content_version": "1.0.0",
+    "title": "走到窗边再回来",
+    "fatigue_types": [
+      "physical",
+      "cognitive_overload",
+      "emotional_social"
+    ],
+    "duration_seconds": 120,
+    "energy_required": "low",
+    "location_tags": [
+      "home",
+      "office",
+      "window_nearby"
+    ],
+    "time_tags": [
+      "day",
+      "evening"
+    ],
+    "steps": [
+      "把手机留在原地",
+      "走到最近的窗边或门口",
+      "看一眼外面的光线，再慢慢走回来"
+    ],
+    "requires_screen": false,
+    "safety_note": "不要在楼梯、车流旁或需要持续警觉的环境中进行。",
+    "anchor_compatible": true
+  },
+  {
+    "id": "paper_brain_dump_01",
+    "content_version": "1.0.0",
+    "title": "只写下三件挂着的事",
+    "fatigue_types": [
+      "cognitive_overload",
+      "bedtime_arousal"
+    ],
+    "duration_seconds": 240,
+    "energy_required": "low",
+    "location_tags": [
+      "home",
+      "office",
+      "paper_available"
+    ],
+    "time_tags": [
+      "evening",
+      "bedtime"
+    ],
+    "steps": [
+      "拿一张纸，不打开新的 App",
+      "只写下脑子里最挂着的三件事",
+      "在纸的最下方写：明天再选第一件"
+    ],
+    "requires_screen": false,
+    "safety_note": "到三件就停，不把它扩展成新的待办清单。",
+    "anchor_compatible": false
+  },
+  {
+    "id": "far_sound_01",
+    "content_version": "1.0.0",
+    "title": "听见最远的声音",
+    "fatigue_types": [
+      "sensory_overload",
+      "emotional_social",
+      "bedtime_arousal",
+      "unknown"
+    ],
+    "duration_seconds": 90,
+    "energy_required": "very_low",
+    "location_tags": [
+      "safe_quiet_place",
+      "home",
+      "office"
+    ],
+    "time_tags": [
+      "any"
+    ],
+    "steps": [
+      "把屏幕熄灭",
+      "先听见离你最近的一个声音",
+      "再找一个更远的声音，不需要判断它是什么"
+    ],
+    "requires_screen": false,
+    "safety_note": "不要在过马路、驾驶或需要持续警觉时闭眼。",
+    "anchor_compatible": true
+  },
+  {
+    "id": "social_quiet_01",
+    "content_version": "1.0.0",
+    "title": "两分钟不回应任何人",
+    "fatigue_types": [
+      "emotional_social",
+      "sensory_overload"
+    ],
+    "duration_seconds": 120,
+    "energy_required": "very_low",
+    "location_tags": [
+      "any_safe_place"
+    ],
+    "time_tags": [
+      "day",
+      "evening"
+    ],
+    "steps": [
+      "把消息界面关掉",
+      "让双手离开键盘和手机",
+      "这两分钟里，不组织下一句回复"
+    ],
+    "requires_screen": false,
+    "safety_note": "若正在处理紧急安全事项，请先完成必要回应。",
+    "anchor_compatible": false
+  },
+  {
+    "id": "feet_supported_01",
+    "content_version": "1.0.0",
+    "title": "把脚交给地面",
+    "fatigue_types": [
+      "physical",
+      "emotional_social",
+      "bedtime_arousal",
+      "unknown"
+    ],
+    "duration_seconds": 60,
+    "energy_required": "very_low",
+    "location_tags": [
+      "seated",
+      "any"
+    ],
+    "time_tags": [
+      "any"
+    ],
+    "steps": [
+      "找一个稳定的位置坐好",
+      "注意双脚和地面接触的位置",
+      "不改变呼吸，只让脚底在那里停一分钟"
+    ],
+    "requires_screen": false,
+    "safety_note": null,
+    "anchor_compatible": true
+  },
+  {
+    "id": "bed_supported_01",
+    "content_version": "1.0.0",
+    "title": "感受床正在托住你",
+    "fatigue_types": [
+      "bedtime_arousal",
+      "physical"
+    ],
+    "duration_seconds": 300,
+    "energy_required": "very_low",
+    "location_tags": [
+      "bed",
+      "home"
+    ],
+    "time_tags": [
+      "bedtime"
+    ],
+    "steps": [
+      "把手机放到够不到也没关系的位置",
+      "注意头、肩膀和背部被托住的位置",
+      "不需要主动改变呼吸，也不用努力入睡"
+    ],
+    "requires_screen": false,
+    "safety_note": "这不是睡眠治疗；如果感到不适，随时停止。",
+    "anchor_compatible": true
+  }
+]

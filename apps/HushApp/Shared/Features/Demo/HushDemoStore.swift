@@ -1,0 +1,159 @@
+import Combine
+import Foundation
+import SwiftUI
+
+enum HushDemoRoute: Equatable {
+    case door
+    case checkIn
+    case reflection
+    case quest
+    case session
+    case feedback
+    case completed
+    case sleepHandoff
+    case handoffRunning
+    case pauseReceipt
+    case blueReset
+}
+
+enum HushDemoPreference: String, CaseIterable, Identifiable {
+    case quiet
+    case move
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .quiet: return "安静一点"
+        case .move: return "让身体动一下"
+        }
+    }
+}
+
+@MainActor
+final class HushDemoStore: ObservableObject {
+    @Published var route: HushDemoRoute = .door
+    @Published var fatigueDescription = ""
+    @Published var availableMinutes = 3
+    @Published var selectedPreference: HushDemoPreference?
+    @Published var selectedQuestIndex = 0
+    @Published var openLoop = "明早确认路演材料的最终版本"
+    @Published var includeGmail = true
+
+    let content: HushDemoContentSnapshot
+
+    init(provider: any HushRestContentProviding = BundledHushRestContentProvider.automatic) {
+        content = HushDemoContentSnapshot.load(from: provider)
+    }
+
+    var currentQuest: HushQuestContent {
+        content.quests[selectedQuestIndex % content.quests.count]
+    }
+
+    var currentDriftPrompt: HushDriftPrompt {
+        content.driftPrompts.first ?? HushDriftPrompt(
+            id: "fallback",
+            category: "sense",
+            text: "此刻房间里最远的声音是什么？"
+        )
+    }
+
+    var currentBlueBoxCard: HushBlueBoxCard {
+        content.blueBoxCards.first ?? .placeholder
+    }
+
+    func startCheckIn() {
+        move(to: .checkIn)
+    }
+
+    func surpriseMe() {
+        selectedPreference = nil
+        selectFirstMatchingQuest(preference: nil)
+        move(to: .quest)
+    }
+
+    func submitCheckIn() {
+        if fatigueDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            fatigueDescription = "脑子很满，身体却停不下来"
+        }
+        move(to: .reflection)
+    }
+
+    func choosePreference(_ preference: HushDemoPreference) {
+        selectedPreference = preference
+        selectFirstMatchingQuest(preference: preference)
+        move(to: .quest)
+    }
+
+    func swapQuest() {
+        guard content.quests.count > 1 else { return }
+        selectedQuestIndex = (selectedQuestIndex + 1) % content.quests.count
+    }
+
+    func startSession() {
+        move(to: .session)
+    }
+
+    func showFeedback() {
+        move(to: .feedback)
+    }
+
+    func completeReset() {
+        move(to: .completed)
+    }
+
+    func startSleepHandoff() {
+        move(to: .sleepHandoff)
+    }
+
+    func submitHandoff() {
+        move(to: .handoffRunning)
+    }
+
+    func showPauseReceipt() {
+        move(to: .pauseReceipt)
+    }
+
+    func startBlueReset() {
+        move(to: .blueReset)
+    }
+
+    func reset() {
+        fatigueDescription = ""
+        selectedPreference = nil
+        selectedQuestIndex = 0
+        route = .door
+    }
+
+    func goBack() {
+        switch route {
+        case .door:
+            break
+        case .checkIn, .quest, .sleepHandoff, .pauseReceipt:
+            move(to: .door)
+        case .reflection:
+            move(to: .checkIn)
+        case .session:
+            move(to: .quest)
+        case .feedback:
+            move(to: .session)
+        case .completed:
+            move(to: .door)
+        case .handoffRunning:
+            move(to: .sleepHandoff)
+        case .blueReset:
+            move(to: .pauseReceipt)
+        }
+    }
+
+    private func selectFirstMatchingQuest(preference: HushDemoPreference?) {
+        let preferredEnergy = preference == .quiet ? "very_low" : "low"
+        selectedQuestIndex = content.quests.firstIndex(where: { $0.energyRequired == preferredEnergy }) ?? 0
+    }
+
+    private func move(to destination: HushDemoRoute) {
+        withAnimation(.easeInOut(duration: 0.28)) {
+            route = destination
+        }
+    }
+}

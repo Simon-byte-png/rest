@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "rules": [
+    {
+      "id": "no_diagnosis",
+      "description": "内容不得诊断疲劳、焦虑、失眠或其他医学状态。"
+    },
+    {
+      "id": "fixed_actions_only",
+      "description": "LLM 只能选择 quest_id，不得新增或改写现实动作。"
+    },
+    {
+      "id": "bounded_duration",
+      "description": "Demo Rest Quest 时长必须在 1 到 6 分钟之间。"
+    },
+    {
+      "id": "no_continuous_screen",
+      "description": "Rest Quest 不要求用户持续看屏幕。"
+    },
+    {
+      "id": "no_unbounded_chores",
+      "description": "不得建议没有明确停止边界的家务、整理或工作。"
+    },
+    {
+      "id": "situational_awareness",
+      "description": "驾驶、过马路、楼梯或其他需要警觉的环境中，不建议闭眼或转移注意力。"
+    },
+    {
+      "id": "no_breath_control_claim",
+      "description": "Blue Reset 不要求强制控制呼吸，也不声称带来治疗效果。"
+    },
+    {
+      "id": "drift_answers_ephemeral",
+      "description": "Guided Drift 的答案不收集、不保存、不发送给 LLM。"
+    }
+  ]
+}
