@@ -47,6 +47,10 @@ export const FIXTURE_CONTRACTS: FixtureContract[] = [
     schema: "handoff-start-request.schema.json"
   },
   {
+    fixture: "handoff-start-open-loops-no-gmail.json",
+    schema: "handoff-start-request.schema.json"
+  },
+  {
     fixture: "handoff-job-running.json",
     schema: "handoff-job.schema.json",
     fragment: "/$defs/HandoffJobState"

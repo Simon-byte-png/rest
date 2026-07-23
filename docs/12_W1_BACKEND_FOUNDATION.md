@@ -17,15 +17,18 @@ W1 owns:
 - `server/src/composition.ts`
 - `contracts/` after contract-change approval
 
-W2 owns:
+Gmail Owner owns:
 
 - `server/src/mail/`
-- `server/src/messaging/`
 - Gmail OAuth and token storage
-- Photon webhook and outbound delivery
-- deployment and CI
 
-W1 defines provider interfaces; W2 implements provider adapters.
+W2 owns:
+
+- `server/src/messaging/`
+- Photon webhook and outbound delivery
+
+W1 defines provider interfaces and owns final composition. Gmail Owner
+implements only Gmail adapters; W2 implements only Photon/Messaging adapters.
 
 ## Implemented infrastructure
 
@@ -87,6 +90,7 @@ W2 must not change public domain types directly. Required changes use
 - No production database or external queue is initialized.
 - The local fallback is intentionally conservative and not a replacement for
   long-term model evaluation.
-- Gmail and Photon remain unavailable until W2 adapters are wired.
+- Gmail and Photon remain unavailable until their separate Provider Owners
+  deliver adapters and W1 wires them.
 
 These are explicit MVP boundaries, not hidden production claims.

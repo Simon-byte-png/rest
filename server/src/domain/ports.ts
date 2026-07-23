@@ -39,21 +39,51 @@ export interface DraftResult {
   draftId: string;
 }
 
+export interface ProviderCallOptions {
+  signal?: AbortSignal;
+}
+
 export interface MailProvider {
   health(): Promise<ProviderHealth>;
-  fetchUnread(context: MailFetchContext): Promise<MailItem[]>;
-  createDraft(request: DraftRequest): Promise<DraftResult>;
+  fetchUnread(
+    context: MailFetchContext,
+    options?: ProviderCallOptions
+  ): Promise<MailItem[]>;
+  createDraft(
+    request: DraftRequest,
+    options?: ProviderCallOptions
+  ): Promise<DraftResult>;
 }
 
 export interface MessagingChannel {
   health(): Promise<ProviderHealth>;
-  send(message: OutboundMessage): Promise<void>;
+  send(
+    message: OutboundMessage,
+    options?: ProviderCallOptions
+  ): Promise<void>;
 }
 
 export interface OutboundMessage {
   recipientId: string;
   text: string;
   correlationId: string;
+}
+
+export interface InboundMessage {
+  eventId: string;
+  providerMessageId: string;
+  senderId: string;
+  recipientId: string;
+  text: string;
+  receivedAt: string;
+}
+
+export interface InboundMessageMapper<Payload = unknown> {
+  map(payload: Payload): InboundMessage;
+}
+
+export interface InboundEventDeduplicator {
+  claim(eventId: string, ttlSeconds: number): Promise<boolean>;
 }
 
 export type ProviderHealth =

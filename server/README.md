@@ -2,8 +2,8 @@
 
 W1/P2 owns the API boundary, Agent orchestration, Rest application service,
 Handoff Job state machine, contracts implementation, bootstrap, and provider
-ports. W2/P3 owns Gmail/OAuth, Photon messaging, webhook verification,
-deployment, and CI.
+ports and the final Composition Root. Gmail Owner owns only Gmail/OAuth
+adapters. W2/P3 owns only Photon messaging and webhook adapters.
 
 Business routes call application services. They never call Gmail, Photon, or
 Claude SDKs directly.
@@ -59,23 +59,25 @@ tests use Fastify injection, so they do not need a listening TCP port.
 
 - Without both `CLAUDE_API_KEY` and `CLAUDE_MODEL`, Agent calls use the local
   deterministic fallback.
-- Until W2 supplies a Gmail adapter, the real Handoff path completes with
+- Until Gmail Owner supplies a Gmail adapter, the real Handoff path completes with
   user-submitted open loops only and explicitly marks Gmail as unavailable.
 - A valid demo token switches to fixture mail and canned Agent behavior.
 - Sample responses carry `X-Hush-Data-Origin: mock`; normal responses carry
   `real`.
 
-## W2 integration points
+## Provider integration points
 
-W2 implements the interfaces in `src/domain/ports.ts`:
+Provider Owners implement W1-owned interfaces from `src/domain/ports.ts`
+without modifying that file:
 
-- `MailProvider`: Gmail health, unread fetch, and idempotent draft creation.
-- `HandoffCompletionSink`: Photon delivery after a successful job.
-- `MessagingChannel`: reusable outbound message channel.
+- Gmail Owner implements `MailProvider`: Gmail health, unread fetch, and
+  idempotent draft creation.
+- W2 implements `MessagingChannel`, inbound mapping, and Photon-backed
+  completion delivery.
 
 Gmail-specific code stays under `src/mail/`; Photon code stays under
-`src/messaging/`. W2 exports factories or registration functions. W1 wires
-those exports in `src/composition.ts` after review.
+`src/messaging/`. Each Owner exports factories or registration functions. W1
+wires those exports in `src/composition.ts` after review.
 
 The Gmail adapter must honor `DraftRequest.dedupeKey`. It must never send mail;
 `createDraft` only creates or returns an existing draft.

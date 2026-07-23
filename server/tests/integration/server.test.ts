@@ -200,6 +200,51 @@ describe("Hush API", () => {
     );
     expect(state.summary?.uncertain).toHaveLength(1);
   });
+
+  it("completes a handoff without invoking Gmail when include_gmail is false", async () => {
+    const requestId = "req_handoff_no_gmail";
+    const startResponse = await server.inject({
+      method: "POST",
+      url: "/v1/handoff/start",
+      headers: {
+        ...baseHeaders(requestId),
+        "idempotency-key": "idem-handoff-no-gmail"
+      },
+      payload: {
+        schema_version: "1.0",
+        request_id: requestId,
+        source: "ios_app",
+        include_gmail: false,
+        gmail_account_id: null,
+        open_loops: [
+          {
+            id: "ol_no_gmail",
+            text: "明天先确认提交材料的格式",
+            desired_time: "tomorrow_morning"
+          }
+        ],
+        response_channel: "app",
+        timezone: "Asia/Shanghai",
+        locale: "zh-CN"
+      }
+    });
+
+    expect(startResponse.statusCode).toBe(202);
+    const state = await waitForTerminalState(
+      server,
+      startResponse.json().job_id
+    );
+    expect(state.status).toBe("succeeded");
+    expect(
+      state.summary?.pause_receipt.coverage.excluded_sources
+    ).toContain("authorized_gmail_not_requested");
+    expect(
+      Object.hasOwn(
+        state.summary?.pause_receipt ?? {},
+        "tomorrow_first_step"
+      )
+    ).toBe(true);
+  });
 });
 
 async function waitForTerminalState(

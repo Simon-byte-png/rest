@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_handoff_no_gmail_001",
+  "source": "ios_app",
+  "include_gmail": false,
+  "gmail_account_id": null,
+  "open_loops": [
+    {
+      "id": "ol_no_gmail_001",
+      "text": "明天先确认提交材料的格式",
+      "desired_time": "tomorrow_morning"
+    }
+  ],
+  "response_channel": "app",
+  "timezone": "Asia/Shanghai",
+  "locale": "zh-CN"
+}
