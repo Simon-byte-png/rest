@@ -87,6 +87,30 @@ export class NoopHandoffCompletionSink
   }
 }
 
+export class MessagingHandoffCompletionSink
+  implements HandoffCompletionSink
+{
+  constructor(
+    private readonly channel: MessagingChannel,
+    private readonly recipientId: string
+  ) {}
+
+  async notify(record: HandoffJobRecord): Promise<void> {
+    const receipt = record.state.summary?.pause_receipt;
+    if (!receipt) {
+      return;
+    }
+    const nextStep = receipt.tomorrow_first_step
+      ? `\n明天第一步：${receipt.tomorrow_first_step}`
+      : "";
+    await this.channel.send({
+      recipientId: this.recipientId,
+      text: `${receipt.conclusion}${nextStep}`,
+      correlationId: record.job.job_id
+    });
+  }
+}
+
 export class RecordingMessagingChannel implements MessagingChannel {
   private readonly messages: OutboundMessage[] = [];
 

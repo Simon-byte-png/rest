@@ -94,3 +94,43 @@ W2 must not change public domain types directly. Required changes use
   deliver adapters and W1 wires them.
 
 These are explicit MVP boundaries, not hidden production claims.
+
+## W1-04 Mock Vertical Slice
+
+The vertical slice uses the real Fastify server, HTTP routes, application
+services, in-memory repositories, and composition root. Tests inject
+`CannedAgentLLM`, local Mail providers, and a
+`RecordingMessagingChannel`; no Gmail or Photon adapter is required.
+
+Run only the vertical slice:
+
+```powershell
+cd server
+pnpm test:vertical
+```
+
+Run the complete backend verification:
+
+```powershell
+cd server
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+Run an already-started local server through real network requests:
+
+```powershell
+.\scripts\smoke-w1-vertical-slice.ps1
+```
+
+For Sample Mode, start the server with `HUSH_DEMO_MODE=true` and a private
+`HUSH_DEMO_TOKEN`, then pass the same value with `-DemoToken`. The script
+contains no token.
+
+Cancellation is currently cooperative at application-stage boundaries. The
+Job becomes `cancelled` immediately and cannot later become `succeeded`, but
+the active Agent or Mail provider call is not aborted because the current
+application service does not pass an `AbortSignal` into those calls. Changing
+that behavior requires a separate, reviewed runtime change; Contract v1 was
+not changed by W1-04.

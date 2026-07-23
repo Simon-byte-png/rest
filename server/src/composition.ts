@@ -12,19 +12,39 @@ import {
   InMemoryIdempotencyStore
 } from "./infra/in-memory.js";
 import {
+  type AgentLLM,
+  type HandoffCompletionSink,
+  type MailProvider,
+  type MessagingChannel
+} from "./domain/ports.js";
+import {
+  ConsoleMessagingChannel,
   FixtureMailProvider,
+  MessagingHandoffCompletionSink,
   NoopHandoffCompletionSink,
   UnavailableMailProvider
 } from "./infra/provider-stubs.js";
 import { RandomIdGenerator, SystemClock } from "./infra/system.js";
 
+export interface ServerCompositionOverrides {
+  realAgent?: AgentLLM;
+  demoAgent?: AgentLLM;
+  realMail?: MailProvider;
+  demoMail?: MailProvider;
+  messagingChannel?: MessagingChannel;
+  completionSink?: HandoffCompletionSink;
+  completionRecipientId?: string;
+}
+
 export function buildServerDependencies(
-  config: AppConfig
+  config: AppConfig,
+  overrides: ServerCompositionOverrides = {}
 ): ServerDependencies {
   const content = new FileRestContentRepository();
   const localAgent = new CannedAgentLLM();
   const realAgent =
-    config.CLAUDE_API_KEY && config.CLAUDE_MODEL
+    overrides.realAgent ??
+    (config.CLAUDE_API_KEY && config.CLAUDE_MODEL
       ? new ResilientAgentLLM(
           new ClaudeAgentLLM(
             config.CLAUDE_API_KEY,
@@ -32,10 +52,20 @@ export function buildServerDependencies(
           ),
           localAgent
         )
-      : localAgent;
-  const realMail = new UnavailableMailProvider();
-  const demoMail = new FixtureMailProvider();
-  const completionSink = new NoopHandoffCompletionSink();
+      : localAgent);
+  const demoAgent = overrides.demoAgent ?? localAgent;
+  const realMail = overrides.realMail ?? new UnavailableMailProvider();
+  const demoMail = overrides.demoMail ?? new FixtureMailProvider();
+  const messaging =
+    overrides.messagingChannel ?? new ConsoleMessagingChannel();
+  const completionSink =
+    overrides.completionSink ??
+    (overrides.completionRecipientId
+      ? new MessagingHandoffCompletionSink(
+          messaging,
+          overrides.completionRecipientId
+        )
+      : new NoopHandoffCompletionSink());
   const clock = new SystemClock();
   const ids = new RandomIdGenerator();
 
@@ -48,7 +78,7 @@ export function buildServerDependencies(
       new InMemoryIdempotencyStore<boolean>()
     ),
     demoRest: new RestService(
-      localAgent,
+      demoAgent,
       content,
       new InMemoryFeedbackRepository(),
       new InMemoryIdempotencyStore<boolean>()
@@ -66,7 +96,7 @@ export function buildServerDependencies(
       new InMemoryHandoffJobRepository(),
       new InMemoryIdempotencyStore<string>(),
       demoMail,
-      localAgent,
+      demoAgent,
       completionSink,
       clock,
       ids
@@ -74,6 +104,7 @@ export function buildServerDependencies(
     providerHealth: async () => ({
       agent: await realAgent.health(),
       gmail: await realMail.health(),
+      messaging_fallback: await messaging.health(),
       rest_content: "ready",
       handoff_jobs: "ready"
     })
