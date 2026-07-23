@@ -45,6 +45,9 @@ paths:
       operationId: evaluateRest
       parameters:
         - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ClientVersion"
+        - $ref: "#/components/parameters/ContractVersion"
+        - $ref: "#/components/parameters/DemoToken"
       requestBody:
         required: true
         content:
@@ -55,6 +58,10 @@ paths:
         "200":
           description: Rest suggestion
           headers:
+            X-Request-ID:
+              $ref: "#/components/headers/RequestId"
+            X-Contract-Version:
+              $ref: "#/components/headers/ContractVersion"
             X-Hush-Data-Origin:
               $ref: "#/components/headers/DataOrigin"
           content:
@@ -70,6 +77,9 @@ paths:
       operationId: reflectFatigue
       parameters:
         - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ClientVersion"
+        - $ref: "#/components/parameters/ContractVersion"
+        - $ref: "#/components/parameters/DemoToken"
       requestBody:
         required: true
         content:
@@ -80,6 +90,10 @@ paths:
         "200":
           description: Fatigue reflection; at most one follow-up
           headers:
+            X-Request-ID:
+              $ref: "#/components/headers/RequestId"
+            X-Contract-Version:
+              $ref: "#/components/headers/ContractVersion"
             X-Hush-Data-Origin:
               $ref: "#/components/headers/DataOrigin"
           content:
@@ -95,6 +109,9 @@ paths:
       operationId: recommendQuest
       parameters:
         - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ClientVersion"
+        - $ref: "#/components/parameters/ContractVersion"
+        - $ref: "#/components/parameters/DemoToken"
       requestBody:
         required: true
         content:
@@ -105,6 +122,10 @@ paths:
         "200":
           description: Quest ID selected from fixed content
           headers:
+            X-Request-ID:
+              $ref: "#/components/headers/RequestId"
+            X-Contract-Version:
+              $ref: "#/components/headers/ContractVersion"
             X-Hush-Data-Origin:
               $ref: "#/components/headers/DataOrigin"
           content:
@@ -120,6 +141,9 @@ paths:
       operationId: recordRestFeedback
       parameters:
         - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ClientVersion"
+        - $ref: "#/components/parameters/ContractVersion"
+        - $ref: "#/components/parameters/DemoToken"
         - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
@@ -139,6 +163,9 @@ paths:
       operationId: startHandoff
       parameters:
         - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ClientVersion"
+        - $ref: "#/components/parameters/ContractVersion"
+        - $ref: "#/components/parameters/DemoToken"
         - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
@@ -150,6 +177,10 @@ paths:
         "202":
           description: Handoff job created or existing idempotent job returned
           headers:
+            X-Request-ID:
+              $ref: "#/components/headers/RequestId"
+            X-Contract-Version:
+              $ref: "#/components/headers/ContractVersion"
             X-Hush-Data-Origin:
               $ref: "#/components/headers/DataOrigin"
           content:
@@ -169,10 +200,17 @@ paths:
           required: true
           schema: { type: string }
         - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ClientVersion"
+        - $ref: "#/components/parameters/ContractVersion"
+        - $ref: "#/components/parameters/DemoToken"
       responses:
         "200":
           description: Current state
           headers:
+            X-Request-ID:
+              $ref: "#/components/headers/RequestId"
+            X-Contract-Version:
+              $ref: "#/components/headers/ContractVersion"
             X-Hush-Data-Origin:
               $ref: "#/components/headers/DataOrigin"
           content:
@@ -192,6 +230,9 @@ paths:
           required: true
           schema: { type: string }
         - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ClientVersion"
+        - $ref: "#/components/parameters/ContractVersion"
+        - $ref: "#/components/parameters/DemoToken"
       responses:
         "202":
           description: Cancellation requested
@@ -285,9 +326,32 @@ components:
       name: X-Request-ID
       in: header
       required: true
+      description: Must equal request_id in JSON request bodies.
       schema:
         type: string
-        format: uuid
+        minLength: 1
+    ClientVersion:
+      name: X-Client-Version
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    ContractVersion:
+      name: X-Contract-Version
+      in: header
+      required: true
+      schema:
+        type: string
+        const: "1.0"
+    DemoToken:
+      name: X-Hush-Demo-Token
+      in: header
+      required: false
+      description: Enables Sample Mode only when the server also has HUSH_DEMO_MODE=true.
+      schema:
+        type: string
+        minLength: 8
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -297,6 +361,13 @@ components:
         minLength: 8
 
   headers:
+    RequestId:
+      schema:
+        type: string
+    ContractVersion:
+      schema:
+        type: string
+        const: "1.0"
     DataOrigin:
       schema:
         type: string

@@ -34,11 +34,14 @@ W1：
 - [ ] `/health`。
 - [ ] contract validation。
 - [ ] CannedLLM。
+- [ ] MailProvider / MessagingChannel 端口。
+- [ ] Handoff Job 内存仓库与幂等端口。
 
 W2：
 
 - [ ] Photon spike。
 - [ ] ConsoleChannel。
+- [ ] Gmail OAuth / provider spike。
 - [ ] 部署 skeleton。
 
 M2：

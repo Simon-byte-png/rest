@@ -6,8 +6,8 @@
 |---|---|---|
 | **M1 / P1** | Mac | Apple Platform、Xcode、Shared Core、Session、最终集成 |
 | **M2 / P4** | Mac | SwiftUI Feature、Design System、内容、Demo |
-| **W1 / P2** | Windows | REST API、Agent、Gmail、Handoff Job、契约实现 |
-| **W2 / P3** | Windows | Photon、Webhook、部署、CI、联调工具 |
+| **W1 / P2** | Windows | REST API、Agent、Handoff Job、契约实现、服务组合根 |
+| **W2 / P3** | Windows | Gmail、Photon、Webhook、部署、CI、联调工具 |
 
 ## 2. 唯一所有权
 
@@ -59,21 +59,26 @@ server/src/application/rest/**
 server/src/application/handoff/**
 server/src/domain/**
 server/src/agent/**
-server/src/mail/**
 server/src/jobs/**
+server/src/content/**
+server/src/infra/**
 server/tests/contracts/**
-server/tests/integration/gmail*
 contracts/**
-scripts/seed-gmail.*
 ```
 
 根 `server/package.json`、锁文件和 `server/src/bootstrap.ts` 由 W1 独占。W2 需要依赖时开 Issue，由 W1 添加。
+
+W1 在 `server/src/domain/**` 中定义 `MailProvider`、`MailItem`、`DraftRequest` 等供应商无关端口，但不实现 Gmail OAuth、读取、草稿或 token 管理。
 
 ### W2 / P3 独占
 
 ```text
 server/src/messaging/**
+server/src/mail/**
 server/tests/integration/photon*
+server/tests/integration/gmail*
+scripts/seed-gmail.*
+scripts/clear-demo-drafts.*
 scripts/gen-qr.*
 .github/**
 docs/photon/**
@@ -84,9 +89,10 @@ W2 不直接修改：
 - `server/src/bootstrap.ts`
 - `contracts/**`
 - `server/src/agent/**`
-- `server/src/mail/**`
+- `server/src/application/**`
+- `server/src/domain/**`
 
-W2 通过导出的 `registerMessagingRoutes()` 或 `MessagingChannel` 接口交给 W1 接线。
+W2 通过导出的 `registerMessagingRoutes()`、`registerGmailRoutes()`、`MessagingChannel` 与 `MailProvider` 实现交给 W1 接线。
 
 ## 3. 公共区域规则
 
@@ -118,7 +124,8 @@ W1：契约 + fixtures + Server skeleton
 M1：Swift 镜像 + Client Mock + Session
 W2：Photon Adapter + Console Adapter
         ↓
-W1：Real LLM/Gmail
+W1：Real LLM + Handoff 编排
+W2：Real Gmail + Photon
         ↓
 M1：切换 Real Service
         ↓

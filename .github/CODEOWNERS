@@ -16,13 +16,17 @@
 /server/src/application/**                      @W1_GITHUB
 /server/src/domain/**                           @W1_GITHUB
 /server/src/agent/**                            @W1_GITHUB
-/server/src/mail/**                             @W1_GITHUB
 /server/src/jobs/**                             @W1_GITHUB
+/server/src/content/**                          @W1_GITHUB
+/server/src/infra/**                            @W1_GITHUB
 /server/package.json                            @W1_GITHUB
 /server/pnpm-lock.yaml                          @W1_GITHUB
 
 /server/src/messaging/**                        @W2_GITHUB
+/server/src/mail/**                             @W2_GITHUB
 /.github/**                                     @W2_GITHUB
+/scripts/seed-gmail.*                           @W2_GITHUB
+/scripts/clear-demo-drafts.*                    @W2_GITHUB
 /scripts/gen-qr.*                               @W2_GITHUB
 
 /contracts/**                                   @W1_GITHUB @M1_GITHUB

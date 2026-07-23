@@ -15,8 +15,8 @@
 
 - **M1 / P1（Mac）**：Apple 平台、Xcode、共享核心、Session、最终集成。
 - **M2 / P4（Mac）**：SwiftUI 产品界面、Design System、Rest Quest 与内容、Demo。
-- **W1 / P2（Windows）**：后端 API、Agent、Gmail、Handoff Job、契约实现。
-- **W2 / P3（Windows）**：Photon/iMessage、部署、CI、Webhook、联调工具。
+- **W1 / P2（Windows）**：后端 API、Agent、Handoff Job、契约实现、服务组合根。
+- **W2 / P3（Windows）**：Gmail、Photon/iMessage、部署、CI、Webhook、联调工具。
 
 ## 核心工程原则
 

@@ -1,21 +1,81 @@
 # Hush Server
 
-Owner split:
+W1/P2 owns the API boundary, Agent orchestration, Rest application service,
+Handoff Job state machine, contracts implementation, bootstrap, and provider
+ports. W2/P3 owns Gmail/OAuth, Photon messaging, webhook verification,
+deployment, and CI.
 
-- W1: API, Agent, Gmail, Handoff Job, contracts implementation, bootstrap.
-- W2: Photon messaging adapter, webhook, CI/deployment.
+Business routes call application services. They never call Gmail, Photon, or
+Claude SDKs directly.
 
-Business routes must call application services, not provider SDKs directly.
+## Toolchain
 
-Recommended scripts to add:
+- Node.js 20.x
+- pnpm 9.x
+- TypeScript 5.9
+- Fastify 5
+- Zod 4
+- Vitest 3
 
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/bootstrap.ts",
-    "test": "vitest run",
-    "test:contracts": "vitest run tests/contracts",
-    "typecheck": "tsc --noEmit"
-  }
-}
+The package deliberately rejects unsupported major Node/pnpm versions through
+`engines`. Local commands can still be inspected on newer Node versions, but
+the demo and deployment environment should use Node 20.
+
+## Start
+
+From the repository root, copy `.env.example` to `.env`, then:
+
+```powershell
+cd server
+corepack pnpm install
+corepack pnpm dev
 ```
+
+The server listens on `PORT` (default `3000`). `GET /v1/health` does not require
+client headers. All other W1 routes require:
+
+```text
+X-Request-ID
+X-Client-Version
+X-Contract-Version: 1.0
+```
+
+The body `request_id` must equal `X-Request-ID`. Mutating idempotent routes also
+require `Idempotency-Key`.
+
+## Commands
+
+```powershell
+corepack pnpm typecheck
+corepack pnpm test
+corepack pnpm build
+corepack pnpm check
+```
+
+`test:contracts` validates fixtures and local OpenAPI references. Integration
+tests use Fastify injection, so they do not need a listening TCP port.
+
+## Current provider behavior
+
+- Without both `CLAUDE_API_KEY` and `CLAUDE_MODEL`, Agent calls use the local
+  deterministic fallback.
+- Until W2 supplies a Gmail adapter, the real Handoff path completes with
+  user-submitted open loops only and explicitly marks Gmail as unavailable.
+- A valid demo token switches to fixture mail and canned Agent behavior.
+- Sample responses carry `X-Hush-Data-Origin: mock`; normal responses carry
+  `real`.
+
+## W2 integration points
+
+W2 implements the interfaces in `src/domain/ports.ts`:
+
+- `MailProvider`: Gmail health, unread fetch, and idempotent draft creation.
+- `HandoffCompletionSink`: Photon delivery after a successful job.
+- `MessagingChannel`: reusable outbound message channel.
+
+Gmail-specific code stays under `src/mail/`; Photon code stays under
+`src/messaging/`. W2 exports factories or registration functions. W1 wires
+those exports in `src/composition.ts` after review.
+
+The Gmail adapter must honor `DraftRequest.dedupeKey`. It must never send mail;
+`createDraft` only creates or returns an existing draft.

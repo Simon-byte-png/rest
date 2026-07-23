@@ -5,7 +5,7 @@
 客户端请求：
 
 ```text
-X-Request-ID: <uuid>
+X-Request-ID: <opaque unique request id>
 X-Client-Version: <semver>
 X-Contract-Version: 1.0
 Idempotency-Key: <uuid>       # 仅需幂等的 POST
@@ -21,6 +21,8 @@ X-Contract-Version: 1.0
 ```
 
 客户端检测到 `mock` 时必须显示 `SAMPLE MODE`，不能伪装真实能力。
+
+对于带 JSON body 的接口，body 中的 `request_id` 必须与 `X-Request-ID` 完全一致；不一致时返回 `INVALID_REQUEST`。响应 body 中的 `request_id` 与响应头始终回显当前 HTTP 请求 ID。Job 内部另行保存原始创建请求 ID，不将其混用为后续轮询请求 ID。
 
 ## 2. 超时
 
@@ -111,7 +113,7 @@ queued
 |---|---|
 | 后端完全不可用 | Hush Door、Surprise Me、本地 Quest、Guided Drift、Blue Reset |
 | LLM 不可用 | 本地疲劳标签 + 规则选 Quest；Handoff 使用 CannedLLM |
-| Gmail 不可用 | 用户主动交接事项 → Pause Receipt |
+| Gmail 不可用 | Job 继续成功完成；仅处理用户主动交接事项，并在 Pause Receipt 中明确 Gmail 未覆盖 |
 | Photon 不可用 | App 内完成全部流程；ConsoleChannel 联调 |
 | DeviceActivity 不可用 | iOS 主动入口 + 调试触发 |
 | Live Activity 不可用 | App 内本地计时 |

@@ -89,7 +89,7 @@ server/
 │   ├── agent/
 │   │   ├── prompts/
 │   │   └── providers/
-│   ├── mail/
+│   ├── mail/                        # W2: Gmail/OAuth/provider adapters
 │   │   └── providers/
 │   ├── jobs/
 │   ├── messaging/
@@ -117,6 +117,12 @@ bootstrap → concrete implementations
 - Agent prompt 直接创建 Gmail 草稿。
 - Photon handler 复制一套 check-in 业务。
 - Domain 依赖 Fastify 或供应商 SDK。
+
+补充边界：
+
+- `MailProvider` 端口定义在 `domain/`，由 W1 维护。
+- Gmail 实现、OAuth 路由和 Gmail 集成测试位于 `mail/`，由 W2 维护。
+- W2 导出注册函数和 provider factory，W1 只在 `bootstrap.ts` 组合依赖。
 
 ## 4. contracts
 

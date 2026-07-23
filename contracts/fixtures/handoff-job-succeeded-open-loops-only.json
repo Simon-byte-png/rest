@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "request_id": "req_handoff_open_loops_001",
+  "job_id": "hj_open_loops_001",
+  "status": "succeeded",
+  "progress_stage": "completed",
+  "estimated_wait_seconds": null,
+  "summary": {
+    "schema_version": "1.0",
+    "request_id": "req_handoff_open_loops_001",
+    "job_id": "hj_open_loops_001",
+    "total_unread": 0,
+    "tonight_required": [],
+    "tomorrow": [],
+    "no_action_count": 0,
+    "uncertain": [],
+    "drafts": [],
+    "pause_receipt": {
+      "coverage": {
+        "included_sources": [
+          "user_submitted_open_loops"
+        ],
+        "excluded_sources": [
+          "authorized_gmail_unavailable",
+          "wechat",
+          "phone_calls",
+          "other_unconnected_channels"
+        ],
+        "since": "2026-07-24T22:00:00+08:00"
+      },
+      "held_items": [
+        {
+          "id": "ol_001",
+          "title": "明天记得回复李老师",
+          "status": "saved_for_tomorrow"
+        },
+        {
+          "id": "ol_002",
+          "title": "首页深色模式按钮还没检查",
+          "status": "saved_for_tomorrow"
+        }
+      ],
+      "tomorrow_first_step": "明天先回复李老师，再检查首页深色模式按钮。",
+      "conclusion": "你主动交接的事项已经保存。Gmail 本次不可用，因此没有检查邮箱。",
+      "coverage_note": "Gmail、微信、电话和其他未连接渠道不在本次覆盖范围内。"
+    }
+  },
+  "error": null
+}
