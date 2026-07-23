@@ -14,6 +14,7 @@ struct HushApp: App {
 
 private struct HushPlaceholderView: View {
     @State private var isShowingSettings = false
+    @StateObject private var restSession = RestSessionLiveActivityModel()
 
     var body: some View {
         NavigationStack {
@@ -24,6 +25,8 @@ private struct HushPlaceholderView: View {
 
                 Text("我现在需要休息")
                     .font(.headline)
+
+                restSessionCard
             }
             .padding()
             .toolbar {
@@ -39,6 +42,95 @@ private struct HushPlaceholderView: View {
         }
         .sheet(isPresented: $isShowingSettings) {
             HushSettingsView()
+        }
+        .task {
+            await restSession.restoreIfNeeded()
+        }
+    }
+
+    private var restSessionCard: some View {
+        VStack(spacing: 14) {
+            Text(restSession.sessionName)
+                .font(.title3.weight(.semibold))
+
+            if restSession.phase != .idle {
+                Text(restSession.formattedRemainingTime)
+                    .font(.system(.largeTitle, design: .rounded).monospacedDigit())
+                    .contentTransition(.numericText())
+                    .accessibilityLabel("剩余 \(restSession.formattedRemainingTime)")
+            }
+
+            Text(restSession.phaseMessage)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            restSessionActions
+
+            if let errorMessage = restSession.errorMessage {
+                Text(errorMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(20)
+        .background(.indigo.opacity(0.08), in: RoundedRectangle(cornerRadius: 20))
+    }
+
+    @ViewBuilder
+    private var restSessionActions: some View {
+        switch restSession.phase {
+        case .idle:
+            Button("开始休息") {
+                Task {
+                    await restSession.start()
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.indigo)
+        case .running:
+            HStack {
+                Button("暂停") {
+                    Task {
+                        await restSession.pause()
+                    }
+                }
+                .buttonStyle(.bordered)
+
+                Button("提前结束", role: .destructive) {
+                    Task {
+                        await restSession.endEarly()
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+        case .paused:
+            HStack {
+                Button("继续") {
+                    Task {
+                        await restSession.resume()
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.indigo)
+
+                Button("结束", role: .destructive) {
+                    Task {
+                        await restSession.endEarly()
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+        case .completed:
+            Button("再休息一分钟") {
+                Task {
+                    await restSession.startAgain()
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.indigo)
         }
     }
 }
