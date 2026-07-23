@@ -7,8 +7,20 @@ final class FamilyControlsAuthorizationModel: ObservableObject {
     @Published private(set) var isRequestingAuthorization = false
     @Published private(set) var errorMessage: String?
 
-    var statusMessage: String {
+    var isAuthorized: Bool {
         if authorizationStatus == .approved {
+            return true
+        }
+
+        if #available(iOS 26.4, *), authorizationStatus == .approvedWithDataAccess {
+            return true
+        }
+
+        return false
+    }
+
+    var statusMessage: String {
+        if isAuthorized {
             return "屏幕使用时间权限已启用"
         }
 
