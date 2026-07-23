@@ -23,6 +23,7 @@
 		A00000000000000000000014 /* Shared/Core/HushRestActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000015 /* Shared/Core/HushRestActivityAttributes.swift */; };
 		A00000000000000000000015 /* Shared/Core/HushRestActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000015 /* Shared/Core/HushRestActivityAttributes.swift */; };
 		A00000000000000000000016 /* iOSApp/Platform/RestSessionLiveActivityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000016 /* iOSApp/Platform/RestSessionLiveActivityModel.swift */; };
+		A00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 		B00000000000000000000014 /* iOSApp/Platform/HushAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/HushAppDelegate.swift; sourceTree = "<group>"; };
 		B00000000000000000000015 /* Shared/Core/HushRestActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/Core/HushRestActivityAttributes.swift; sourceTree = "<group>"; };
 		B00000000000000000000016 /* iOSApp/Platform/RestSessionLiveActivityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/RestSessionLiveActivityModel.swift; sourceTree = "<group>"; };
+		B00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/InterruptionModeModel.swift; sourceTree = "<group>"; };
 		B00000000000000000000101 /* Hush.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hush.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000102 /* HushMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HushMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000103 /* HushDeviceActivityMonitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HushDeviceActivityMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -154,6 +156,7 @@
 				B00000000000000000000013 /* iOSApp/Platform/NotificationAuthorizationModel.swift */,
 				B00000000000000000000014 /* iOSApp/Platform/HushAppDelegate.swift */,
 				B00000000000000000000016 /* iOSApp/Platform/RestSessionLiveActivityModel.swift */,
+				B00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift */,
 				B00000000000000000000002 /* iOSApp/Hush.entitlements */,
 			);
 			name = iOSApp;
@@ -366,6 +369,7 @@
 				A00000000000000000000013 /* iOSApp/Platform/HushAppDelegate.swift in Sources */,
 				A00000000000000000000014 /* Shared/Core/HushRestActivityAttributes.swift in Sources */,
 				A00000000000000000000016 /* iOSApp/Platform/RestSessionLiveActivityModel.swift in Sources */,
+				A00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

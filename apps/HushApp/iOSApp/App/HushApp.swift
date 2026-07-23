@@ -141,6 +141,7 @@ private struct HushSettingsView: View {
     @StateObject private var selectionStore = FamilyActivitySelectionStore()
     @StateObject private var monitoring = DeviceActivityMonitoringModel()
     @StateObject private var notifications = NotificationAuthorizationModel()
+    @StateObject private var interruptionMode = InterruptionModeModel()
     @State private var isShowingActivityPicker = false
 
     var body: some View {
@@ -200,6 +201,17 @@ private struct HushSettingsView: View {
                 }
 
                 Section("设备活动监测") {
+                    Picker("提醒方式", selection: $interruptionMode.mode) {
+                        ForEach(InterruptionModeModel.Mode.allCases) { mode in
+                            Text(mode.title).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    Text(interruptionMode.mode.detail)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
                     Text(monitoring.monitoringStatusMessage)
                         .foregroundStyle(.secondary)
 
@@ -212,7 +224,7 @@ private struct HushSettingsView: View {
                             monitoring.stopMonitoring()
                         }
                     } else {
-                        Button("启动 5 分钟测试监测") {
+                        Button("启动 1 小时使用监测") {
                             monitoring.startMonitoring(selection: selectionStore.selection)
                         }
                         .disabled(
@@ -227,7 +239,7 @@ private struct HushSettingsView: View {
                             .foregroundStyle(.red)
                     }
 
-                    Text("测试监测只记录阈值是否到达，不屏蔽 App、不调用网络。")
+                    Text("仅统计你选择的范围；强提醒会在达到一小时后使用系统遮罩。")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }

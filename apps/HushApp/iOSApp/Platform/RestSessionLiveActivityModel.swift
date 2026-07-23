@@ -1,5 +1,6 @@
 import ActivityKit
 import Foundation
+import ManagedSettings
 import SwiftUI
 
 @MainActor
@@ -24,6 +25,10 @@ final class RestSessionLiveActivityModel: ObservableObject {
         static let expectedEndDate = "hush.rest-session.expected-end-date"
         static let remainingSeconds = "hush.rest-session.remaining-seconds"
     }
+
+    private static let managedSettingsStore = ManagedSettingsStore(
+        named: ManagedSettingsStore.Name("hush.interruption")
+    )
 
     private let defaults: UserDefaults
     private var expectedEndDate: Date?
@@ -187,6 +192,7 @@ final class RestSessionLiveActivityModel: ObservableObject {
         phase = .idle
         remainingSeconds = durationSeconds
         clearPersistedSession()
+        Self.managedSettingsStore.clearAllSettings()
         await endAllActivities(
             finalPhase: .ended,
             remainingSeconds: remainingSeconds
@@ -233,6 +239,7 @@ final class RestSessionLiveActivityModel: ObservableObject {
         remainingSeconds = 0
         phase = .completed
         clearPersistedSession()
+        Self.managedSettingsStore.clearAllSettings()
         await endAllActivities(
             finalPhase: .completed,
             remainingSeconds: 0
