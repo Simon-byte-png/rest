@@ -556,7 +556,8 @@ queued
 | **M1 / P1** | Mac | Apple Platform、Xcode、Shared Core、Session、最终集成 |
 | **M2 / P4** | Mac | SwiftUI Feature、Design System、内容、Demo |
 | **W1 / P2** | Windows | REST API、Agent、Handoff Job、契约实现、服务组合根 |
-| **W2 / P3** | Windows | Gmail、Photon、Webhook、部署、CI、联调工具 |
+| **Gmail Owner** | Windows | 仅 Gmail Provider、OAuth Adapter 与 Gmail 联调 |
+| **W2 / P3** | Windows | 仅 Photon / Messaging Provider、Webhook Adapter 与 Photon 联调 |
 
 ## 2. 唯一所有权
 
@@ -612,36 +613,50 @@ server/src/jobs/**
 server/src/content/**
 server/src/infra/**
 server/tests/contracts/**
+server/tests/provider-contracts/**
 contracts/**
 ```
 
-根 `server/package.json`、锁文件和 `server/src/bootstrap.ts` 由 W1 独占。W2 需要依赖时开 Issue，由 W1 添加。
+根 `server/package.json`、锁文件、`server/src/composition.ts` 和
+`server/src/bootstrap.ts` 由 W1 独占。Provider Owner 需要依赖时开 Issue，
+由 W1 添加。
 
-W1 在 `server/src/domain/**` 中定义 `MailProvider`、`MailItem`、`DraftRequest` 等供应商无关端口，但不实现 Gmail OAuth、读取、草稿或 token 管理。
+W1 在 `server/src/domain/**` 中定义 `MailProvider`、`MessagingChannel`、
+Inbound mapper 与 dedupe 等供应商无关端口，但不实现 Gmail OAuth、Gmail
+Provider、Photon Provider 或 Photon Webhook。
+
+### Gmail Owner 独占
+
+```text
+server/src/mail/**
+server/tests/integration/gmail*
+scripts/seed-gmail.*
+scripts/clear-demo-drafts.*
+docs/gmail/**
+```
 
 ### W2 / P3 独占
 
 ```text
 server/src/messaging/**
-server/src/mail/**
 server/tests/integration/photon*
-server/tests/integration/gmail*
-scripts/seed-gmail.*
-scripts/clear-demo-drafts.*
 scripts/gen-qr.*
-.github/**
 docs/photon/**
 ```
 
 W2 不直接修改：
 
 - `server/src/bootstrap.ts`
+- `server/src/composition.ts`
 - `contracts/**`
 - `server/src/agent/**`
 - `server/src/application/**`
 - `server/src/domain/**`
+- `server/src/mail/**`
 
-W2 通过导出的 `registerMessagingRoutes()`、`registerGmailRoutes()`、`MessagingChannel` 与 `MailProvider` 实现交给 W1 接线。
+Gmail Owner 仅通过 `server/src/mail/**` 提供 Gmail factory/route；W2 仅通过
+`server/src/messaging/**` 提供 Photon/Messaging factory/route。两者均不得修改
+Domain、Application、contracts 或 Composition Root，最终由 W1 接线。
 
 ## 3. 公共区域规则
 
@@ -674,7 +689,8 @@ M1：Swift 镜像 + Client Mock + Session
 W2：Photon Adapter + Console Adapter
         ↓
 W1：Real LLM + Handoff 编排
-W2：Real Gmail + Photon
+Gmail Owner：Real Gmail
+W2：Real Photon
         ↓
 M1：切换 Real Service
         ↓

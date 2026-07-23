@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:contracts": "vitest run tests/contracts",
+    "test:providers": "vitest run tests/provider-contracts",
     "test:integration": "vitest run tests/integration",
     "smoke": "vitest run tests/integration/server.test.ts",
     "check": "pnpm typecheck && pnpm test && pnpm build"

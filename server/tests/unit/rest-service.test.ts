@@ -74,4 +74,22 @@ describe("RestService", () => {
 
     expect(result.quest_id).toBe("look_far_01");
   });
+
+  it("never asks a second follow-up after follow_up_answer is present", async () => {
+    const result = await createService().checkIn({
+      schema_version: "1.0",
+      request_id: "req_follow_up_answered",
+      session_id: "session_follow_up",
+      source: "manual_ios",
+      description: "我说不清是哪一种累",
+      input_mode: "text",
+      available_minutes: 3,
+      willing_to_move: null,
+      current_place: "desk",
+      follow_up_answer: "脑子转不动"
+    });
+
+    expect(result.needs_follow_up).toBe(false);
+    expect(result.follow_up).toBeNull();
+  });
 });

@@ -19,15 +19,23 @@
 /server/src/jobs/**                             @W1_GITHUB
 /server/src/content/**                          @W1_GITHUB
 /server/src/infra/**                            @W1_GITHUB
+/server/src/composition.ts                      @W1_GITHUB
+/server/src/bootstrap.ts                        @W1_GITHUB
+/server/tests/provider-contracts/**             @W1_GITHUB
 /server/package.json                            @W1_GITHUB
 /server/pnpm-lock.yaml                          @W1_GITHUB
 
 /server/src/messaging/**                        @W2_GITHUB
-/server/src/mail/**                             @W2_GITHUB
-/.github/**                                     @W2_GITHUB
-/scripts/seed-gmail.*                           @W2_GITHUB
-/scripts/clear-demo-drafts.*                    @W2_GITHUB
+/server/tests/integration/photon*               @W2_GITHUB
 /scripts/gen-qr.*                               @W2_GITHUB
+/docs/photon/**                                 @W2_GITHUB
+
+/server/src/mail/**                             @GMAIL_OWNER_GITHUB
+/server/tests/integration/gmail*                @GMAIL_OWNER_GITHUB
+/scripts/seed-gmail.*                           @GMAIL_OWNER_GITHUB
+/scripts/clear-demo-drafts.*                    @GMAIL_OWNER_GITHUB
+/docs/gmail/**                                  @GMAIL_OWNER_GITHUB
 
 /contracts/**                                   @W1_GITHUB @M1_GITHUB
 /AGENTS.md                                      @M1_GITHUB @W1_GITHUB
+/.github/**                                     @M1_GITHUB @W1_GITHUB

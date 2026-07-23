@@ -3,6 +3,7 @@ import type {
   FeedbackRepository,
   HandoffJobRecord,
   HandoffJobRepository,
+  InboundEventDeduplicator,
   IdempotencyStore
 } from "../domain/ports.js";
 
@@ -83,5 +84,21 @@ export class InMemoryFeedbackRepository implements FeedbackRepository {
 
   all(): RestFeedback[] {
     return structuredClone(this.feedback);
+  }
+}
+
+export class InMemoryInboundEventDeduplicator
+  implements InboundEventDeduplicator
+{
+  private readonly events = new Map<string, number>();
+
+  async claim(eventId: string, ttlSeconds: number): Promise<boolean> {
+    const now = Date.now();
+    const expiresAt = this.events.get(eventId);
+    if (expiresAt !== undefined && expiresAt > now) {
+      return false;
+    }
+    this.events.set(eventId, now + ttlSeconds * 1_000);
+    return true;
   }
 }

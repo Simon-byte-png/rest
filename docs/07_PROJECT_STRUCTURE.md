@@ -89,7 +89,7 @@ server/
 │   ├── agent/
 │   │   ├── prompts/
 │   │   └── providers/
-│   ├── mail/                        # W2: Gmail/OAuth/provider adapters
+│   ├── mail/                        # Gmail Owner: Gmail/OAuth/provider adapters
 │   │   └── providers/
 │   ├── jobs/
 │   ├── messaging/
@@ -121,7 +121,9 @@ bootstrap → concrete implementations
 补充边界：
 
 - `MailProvider` 端口定义在 `domain/`，由 W1 维护。
-- Gmail 实现、OAuth 路由和 Gmail 集成测试位于 `mail/`，由 W2 维护。
+- Gmail 实现、OAuth 路由和 Gmail 集成测试位于 `mail/`，由 Gmail Owner 维护。
+- Photon / Messaging 实现位于 `messaging/`，由 W2 维护。
+- Provider 完成后统一由 W1 在 `composition.ts` 接线。
 - W2 导出注册函数和 provider factory，W1 只在 `bootstrap.ts` 组合依赖。
 
 ## 4. contracts
