@@ -1,0 +1,53 @@
+{
+  "version": "0.1.0",
+  "status": "placeholder_pending_bluebox_review",
+  "cards": [
+    {
+      "id": "supported_body_scan_demo",
+      "context": [
+        "bedtime_arousal"
+      ],
+      "duration_seconds": 300,
+      "title": "感受身体被托住的位置",
+      "steps": [
+        "把手机放下",
+        "注意头、肩膀和背部被托住的位置",
+        "不需要主动改变呼吸"
+      ],
+      "medical_claims": false,
+      "reviewed_by_bluebox": false
+    },
+    {
+      "id": "pillow_temperature_demo",
+      "context": [
+        "bedtime_arousal",
+        "sensory_overload"
+      ],
+      "duration_seconds": 180,
+      "title": "注意枕头的温度",
+      "steps": [
+        "把屏幕熄灭",
+        "注意脸颊附近是偏暖还是偏凉",
+        "不用追求放松，只停在这个感觉上"
+      ],
+      "medical_claims": false,
+      "reviewed_by_bluebox": false
+    },
+    {
+      "id": "room_edges_demo",
+      "context": [
+        "cognitive_overload",
+        "bedtime_arousal"
+      ],
+      "duration_seconds": 240,
+      "title": "让房间慢慢变小",
+      "steps": [
+        "看一眼离你最远的墙角",
+        "再注意床边最近的一样东西",
+        "熄灭屏幕，不再安排明天"
+      ],
+      "medical_claims": false,
+      "reviewed_by_bluebox": false
+    }
+  ]
+}

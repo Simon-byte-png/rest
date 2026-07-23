@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "prompts": [
+    {
+      "id": "sense_far_sound",
+      "category": "sense",
+      "text": "此刻房间里最远的声音是什么？"
+    },
+    {
+      "id": "sense_temperature",
+      "category": "sense",
+      "text": "手背碰到空气时，是偏暖还是偏凉？"
+    },
+    {
+      "id": "sense_support",
+      "category": "sense",
+      "text": "现在身体的重量主要被哪里托住？"
+    },
+    {
+      "id": "recall_small_comfort",
+      "category": "recall",
+      "text": "今天有没有一个很小、但让你舒服的瞬间？"
+    },
+    {
+      "id": "recall_first_light",
+      "category": "recall",
+      "text": "今天第一次注意到天光，是什么时候？"
+    },
+    {
+      "id": "recall_kindness",
+      "category": "recall",
+      "text": "今天有没有一句不费力、但很友善的话？"
+    },
+    {
+      "id": "imagine_weather",
+      "category": "imagine",
+      "text": "如果今天的疲惫是一种天气，它是什么样的？"
+    },
+    {
+      "id": "imagine_shelf",
+      "category": "imagine",
+      "text": "如果能把一件事先放上架子，你想放下哪一件？"
+    },
+    {
+      "id": "imagine_distance",
+      "category": "imagine",
+      "text": "如果把今天稍微拉远一点看，什么会显得没那么大？"
+    }
+  ],
+  "privacy": "answers_are_not_collected_or_saved"
+}
