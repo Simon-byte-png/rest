@@ -3,6 +3,8 @@ import SwiftUI
 
 @main
 struct HushApp: App {
+    @UIApplicationDelegateAdaptor(HushAppDelegate.self) private var appDelegate
+
     var body: some Scene {
         WindowGroup {
             HushPlaceholderView()
@@ -46,6 +48,7 @@ private struct HushSettingsView: View {
     @StateObject private var authorization = FamilyControlsAuthorizationModel()
     @StateObject private var selectionStore = FamilyActivitySelectionStore()
     @StateObject private var monitoring = DeviceActivityMonitoringModel()
+    @StateObject private var notifications = NotificationAuthorizationModel()
     @State private var isShowingActivityPicker = false
 
     var body: some View {
@@ -136,6 +139,43 @@ private struct HushSettingsView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
+
+                Section("休息提醒") {
+                    Text(notifications.statusMessage)
+                        .foregroundStyle(.secondary)
+
+                    if !notifications.isAuthorized {
+                        Button {
+                            Task {
+                                await notifications.requestAuthorization()
+                            }
+                        } label: {
+                            if notifications.isRequestingAuthorization {
+                                ProgressView()
+                            } else {
+                                Text("启用休息提醒通知")
+                            }
+                        }
+                        .disabled(notifications.isRequestingAuthorization)
+                    }
+
+                    Button("发送测试提醒") {
+                        Task {
+                            await notifications.sendTestReminder()
+                        }
+                    }
+                    .disabled(!notifications.isAuthorized)
+
+                    if let errorMessage = notifications.errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+
+                    Text("达到监测阈值后，Hush 最多每 2 小时提醒一次，每天最多 3 次。")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
             .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.inline)
@@ -149,6 +189,7 @@ private struct HushSettingsView: View {
             .task {
                 authorization.refreshStatus()
                 monitoring.refreshStatus()
+                await notifications.refreshStatus()
             }
             .familyActivityPicker(
                 headerText: "选择希望 Hush 关注的 App、类别或网站",

@@ -18,6 +18,8 @@
 		A00000000000000000000009 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift */; };
 		A00000000000000000000010 /* iOSApp/Platform/FamilyActivitySelectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000011 /* iOSApp/Platform/FamilyActivitySelectionStore.swift */; };
 		A00000000000000000000011 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000012 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift */; };
+		A00000000000000000000012 /* iOSApp/Platform/NotificationAuthorizationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000013 /* iOSApp/Platform/NotificationAuthorizationModel.swift */; };
+		A00000000000000000000013 /* iOSApp/Platform/HushAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000014 /* iOSApp/Platform/HushAppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +67,8 @@
 		B00000000000000000000010 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/FamilyControlsAuthorizationModel.swift; sourceTree = "<group>"; };
 		B00000000000000000000011 /* iOSApp/Platform/FamilyActivitySelectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/FamilyActivitySelectionStore.swift; sourceTree = "<group>"; };
 		B00000000000000000000012 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/DeviceActivityMonitoringModel.swift; sourceTree = "<group>"; };
+		B00000000000000000000013 /* iOSApp/Platform/NotificationAuthorizationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/NotificationAuthorizationModel.swift; sourceTree = "<group>"; };
+		B00000000000000000000014 /* iOSApp/Platform/HushAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/HushAppDelegate.swift; sourceTree = "<group>"; };
 		B00000000000000000000101 /* Hush.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hush.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000102 /* HushMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HushMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000103 /* HushDeviceActivityMonitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HushDeviceActivityMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -141,6 +145,8 @@
 				B00000000000000000000010 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift */,
 				B00000000000000000000011 /* iOSApp/Platform/FamilyActivitySelectionStore.swift */,
 				B00000000000000000000012 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift */,
+				B00000000000000000000013 /* iOSApp/Platform/NotificationAuthorizationModel.swift */,
+				B00000000000000000000014 /* iOSApp/Platform/HushAppDelegate.swift */,
 				B00000000000000000000002 /* iOSApp/Hush.entitlements */,
 			);
 			name = iOSApp;
@@ -349,6 +355,8 @@
 				A00000000000000000000009 /* iOSApp/Platform/FamilyControlsAuthorizationModel.swift in Sources */,
 				A00000000000000000000010 /* iOSApp/Platform/FamilyActivitySelectionStore.swift in Sources */,
 				A00000000000000000000011 /* iOSApp/Platform/DeviceActivityMonitoringModel.swift in Sources */,
+				A00000000000000000000012 /* iOSApp/Platform/NotificationAuthorizationModel.swift in Sources */,
+				A00000000000000000000013 /* iOSApp/Platform/HushAppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
