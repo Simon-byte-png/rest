@@ -14,9 +14,6 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
     private static let lastThresholdKey = "deviceActivity.lastThresholdDate"
     private static let lastAgentDecisionKey = "agent.lastDecisionMessage"
     private static let lastAgentErrorKey = "agent.lastErrorMessage"
-    private static let reminderDatesKey = "deviceActivity.reminderDates"
-    private static let reminderCooldown: TimeInterval = 2 * 60 * 60
-    private static let dailyReminderLimit = 3
     private static let managedSettingsStore = ManagedSettingsStore(
         named: ManagedSettingsStore.Name("hush.interruption")
     )
@@ -96,11 +93,9 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
                     applyFirmInterruption(userDefaults: userDefaults)
                 }
 
-                scheduleReminderIfAllowed(
-                    now: now,
+                scheduleReminder(
                     contextLabel: contextLabel,
-                    agentMessage: decision.message,
-                    userDefaults: userDefaults
+                    agentMessage: decision.message
                 )
             } catch {
                 recordAgentError(
@@ -166,28 +161,10 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
             : selection.webDomainTokens
     }
 
-    private func scheduleReminderIfAllowed(
-        now: Date,
+    private func scheduleReminder(
         contextLabel: String,
-        agentMessage: String,
-        userDefaults: UserDefaults?
+        agentMessage: String
     ) {
-        let storedDates = userDefaults?.array(forKey: Self.reminderDatesKey) as? [Date] ?? []
-        let todayDates = storedDates.filter {
-            Calendar.current.isDate($0, inSameDayAs: now)
-        }
-
-        guard todayDates.count < Self.dailyReminderLimit else {
-            return
-        }
-
-        if
-            let mostRecentDate = todayDates.max(),
-            now.timeIntervalSince(mostRecentDate) < Self.reminderCooldown
-        {
-            return
-        }
-
         let content = UNMutableNotificationContent()
         content.title = "Hush"
         content.body = agentMessage.isEmpty
@@ -202,13 +179,7 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
             trigger: nil
         )
 
-        UNUserNotificationCenter.current().add(request) { error in
-            guard error == nil else {
-                return
-            }
-
-            userDefaults?.set(todayDates + [now], forKey: Self.reminderDatesKey)
-        }
+        UNUserNotificationCenter.current().add(request)
     }
 
     private func recordAgentError(
