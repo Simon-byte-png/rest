@@ -13,8 +13,10 @@ struct HushApp: App {
 }
 
 private struct HushPlaceholderView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var isShowingSettings = false
     @StateObject private var restSession = RestSessionLiveActivityModel()
+    @StateObject private var lockdown = LockdownCoordinator()
 
     var body: some View {
         NavigationStack {
@@ -22,6 +24,10 @@ private struct HushPlaceholderView: View {
                 Text(HushProduct.displayName)
                     .font(.largeTitle)
                     .fontWeight(.semibold)
+
+                if let activeLockdown = lockdown.activeState {
+                    lockdownCard(activeLockdown)
+                }
 
                 Text("我现在需要休息")
                     .font(.headline)
@@ -45,7 +51,84 @@ private struct HushPlaceholderView: View {
         }
         .task {
             await restSession.restoreIfNeeded()
+            lockdown.refresh()
         }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else {
+                return
+            }
+
+            lockdown.refresh()
+        }
+        .onChange(of: restSession.phase) { _, phase in
+            guard phase == .idle || phase == .completed else {
+                return
+            }
+
+            lockdown.refresh()
+        }
+    }
+
+    private func lockdownCard(
+        _ activeLockdown: HushLockdownState
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Label(
+                "强提醒已启用",
+                systemImage: "lock.shield.fill"
+            )
+            .font(.headline)
+            .foregroundStyle(.indigo)
+
+            Text(activeLockdown.userProvidedContextLabel)
+                .font(.title3.weight(.semibold))
+
+            Text(
+                activeLockdown.message.isEmpty
+                    ? "这个 App 已暂时锁定。先把一分钟留给自己吧。"
+                    : activeLockdown.message
+            )
+            .font(.body)
+            .foregroundStyle(.secondary)
+
+            if restSession.phase == .running
+                || restSession.phase == .paused
+            {
+                Text("休息完成或提前结束后会自动解除锁定。")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else {
+                Button("开始休息") {
+                    Task {
+                        await restSession.start()
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.indigo)
+
+                HStack {
+                    Button("稍后提醒") {
+                        lockdown.release()
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button("这次跳过", role: .cancel) {
+                        lockdown.release()
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(18)
+        .background(
+            .indigo.opacity(0.1),
+            in: RoundedRectangle(cornerRadius: 20)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(.indigo.opacity(0.25), lineWidth: 1)
+        )
     }
 
     private var restSessionCard: some View {

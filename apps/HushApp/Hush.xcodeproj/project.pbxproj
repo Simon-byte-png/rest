@@ -26,6 +26,10 @@
 		A00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift */; };
 		A00000000000000000000018 /* iOSApp/Platform/AgentConnectionSettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000018 /* iOSApp/Platform/AgentConnectionSettingsModel.swift */; };
 		A00000000000000000000019 /* DeviceActivityMonitorExt/HTTPRestDecisionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000019 /* DeviceActivityMonitorExt/HTTPRestDecisionProvider.swift */; };
+		A00000000000000000000020 /* MacMenuBar/Platform/MacUsageMonitoringModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000020 /* MacMenuBar/Platform/MacUsageMonitoringModel.swift */; };
+		A00000000000000000000021 /* Shared/Core/HushLockdownState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000021 /* Shared/Core/HushLockdownState.swift */; };
+		A00000000000000000000022 /* Shared/Core/HushLockdownState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000021 /* Shared/Core/HushLockdownState.swift */; };
+		A00000000000000000000023 /* iOSApp/Platform/LockdownCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000022 /* iOSApp/Platform/LockdownCoordinator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +84,9 @@
 		B00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/InterruptionModeModel.swift; sourceTree = "<group>"; };
 		B00000000000000000000018 /* iOSApp/Platform/AgentConnectionSettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/AgentConnectionSettingsModel.swift; sourceTree = "<group>"; };
 		B00000000000000000000019 /* DeviceActivityMonitorExt/HTTPRestDecisionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceActivityMonitorExt/HTTPRestDecisionProvider.swift; sourceTree = "<group>"; };
+		B00000000000000000000020 /* MacMenuBar/Platform/MacUsageMonitoringModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacMenuBar/Platform/MacUsageMonitoringModel.swift; sourceTree = "<group>"; };
+		B00000000000000000000021 /* Shared/Core/HushLockdownState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/Core/HushLockdownState.swift; sourceTree = "<group>"; };
+		B00000000000000000000022 /* iOSApp/Platform/LockdownCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/LockdownCoordinator.swift; sourceTree = "<group>"; };
 		B00000000000000000000101 /* Hush.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hush.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000102 /* HushMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HushMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000103 /* HushDeviceActivityMonitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HushDeviceActivityMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -146,6 +153,7 @@
 			children = (
 				B00000000000000000000004 /* Shared/Core/HushProduct.swift */,
 				B00000000000000000000015 /* Shared/Core/HushRestActivityAttributes.swift */,
+				B00000000000000000000021 /* Shared/Core/HushLockdownState.swift */,
 			);
 			name = Shared;
 			sourceTree = "<group>";
@@ -162,6 +170,7 @@
 				B00000000000000000000016 /* iOSApp/Platform/RestSessionLiveActivityModel.swift */,
 				B00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift */,
 				B00000000000000000000018 /* iOSApp/Platform/AgentConnectionSettingsModel.swift */,
+				B00000000000000000000022 /* iOSApp/Platform/LockdownCoordinator.swift */,
 				B00000000000000000000002 /* iOSApp/Hush.entitlements */,
 			);
 			name = iOSApp;
@@ -171,6 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				B00000000000000000000003 /* MacMenuBar/App/HushMacApp.swift */,
+				B00000000000000000000020 /* MacMenuBar/Platform/MacUsageMonitoringModel.swift */,
 			);
 			name = MacMenuBar;
 			sourceTree = "<group>";
@@ -377,6 +387,8 @@
 				A00000000000000000000016 /* iOSApp/Platform/RestSessionLiveActivityModel.swift in Sources */,
 				A00000000000000000000017 /* iOSApp/Platform/InterruptionModeModel.swift in Sources */,
 				A00000000000000000000018 /* iOSApp/Platform/AgentConnectionSettingsModel.swift in Sources */,
+				A00000000000000000000021 /* Shared/Core/HushLockdownState.swift in Sources */,
+				A00000000000000000000023 /* iOSApp/Platform/LockdownCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -386,6 +398,7 @@
 			files = (
 				A00000000000000000000003 /* MacMenuBar/App/HushMacApp.swift in Sources */,
 				A00000000000000000000004 /* Shared/Core/HushProduct.swift in Sources */,
+				A00000000000000000000020 /* MacMenuBar/Platform/MacUsageMonitoringModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -395,6 +408,7 @@
 			files = (
 				A00000000000000000000005 /* DeviceActivityMonitorExt/HushDeviceActivityMonitor.swift in Sources */,
 				A00000000000000000000019 /* DeviceActivityMonitorExt/HTTPRestDecisionProvider.swift in Sources */,
+				A00000000000000000000022 /* Shared/Core/HushLockdownState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

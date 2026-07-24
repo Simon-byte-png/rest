@@ -36,6 +36,7 @@ final class InterruptionModeModel: ObservableObject {
 
             if mode == .gentle {
                 Self.managedSettingsStore.clearAllSettings()
+                HushLockdownState.clear()
             }
         }
     }
@@ -57,6 +58,7 @@ final class InterruptionModeModel: ObservableObject {
 
         if mode == .gentle {
             Self.managedSettingsStore.clearAllSettings()
+            HushLockdownState.clear()
         }
     }
 }

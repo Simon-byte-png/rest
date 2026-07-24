@@ -197,6 +197,7 @@ final class RestSessionLiveActivityModel: ObservableObject {
         remainingSeconds = durationSeconds
         clearPersistedSession()
         Self.managedSettingsStore.clearAllSettings()
+        HushLockdownState.clear()
         await endAllActivities(
             finalPhase: .ended,
             remainingSeconds: remainingSeconds
@@ -248,6 +249,7 @@ final class RestSessionLiveActivityModel: ObservableObject {
             forKey: Self.lastCompletedRestDateKey
         )
         Self.managedSettingsStore.clearAllSettings()
+        HushLockdownState.clear()
         await endAllActivities(
             finalPhase: .completed,
             remainingSeconds: 0

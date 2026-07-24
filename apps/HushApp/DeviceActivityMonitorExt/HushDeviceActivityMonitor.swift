@@ -30,6 +30,8 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
 
     override func intervalDidStart(for activity: DeviceActivityName) {
         super.intervalDidStart(for: activity)
+        Self.managedSettingsStore.clearAllSettings()
+        HushLockdownState.clear()
         UserDefaults(suiteName: Self.appGroupIdentifier)?
             .removeObject(forKey: Self.appUsageStatesKey)
     }
@@ -37,6 +39,7 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
     override func intervalDidEnd(for activity: DeviceActivityName) {
         super.intervalDidEnd(for: activity)
         Self.managedSettingsStore.clearAllSettings()
+        HushLockdownState.clear()
     }
 
     override func eventDidReachThreshold(
@@ -135,7 +138,11 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
                 if userDefaults?.string(
                     forKey: Self.interruptionModeKey
                 ) == "firm" {
-                    applyFirmInterruption(applicationToken: applicationToken)
+                    applyFirmInterruption(
+                        applicationToken: applicationToken,
+                        contextLabel: contextLabel,
+                        message: decision.message
+                    )
                 }
 
                 scheduleReminder(
@@ -289,11 +296,20 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
     }
 
     private func applyFirmInterruption(
-        applicationToken: ApplicationToken
+        applicationToken: ApplicationToken,
+        contextLabel: String,
+        message: String
     ) {
         let store = Self.managedSettingsStore
         store.clearAllSettings()
         store.shield.applications = [applicationToken]
+        HushLockdownState(
+            id: UUID(),
+            userProvidedContextLabel: contextLabel,
+            message: message,
+            activatedAt: Date()
+        )
+        .persist()
     }
 
     private func scheduleReminder(

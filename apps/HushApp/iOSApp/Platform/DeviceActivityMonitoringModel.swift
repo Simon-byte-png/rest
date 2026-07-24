@@ -106,6 +106,7 @@ final class DeviceActivityMonitoringModel: ObservableObject {
         do {
             center.stopMonitoring([Self.activityName])
             Self.managedSettingsStore.clearAllSettings()
+            HushLockdownState.clear()
             userDefaults?.removeObject(forKey: Self.appUsageStatesKey)
             userDefaults?.set(
                 contextLabelsByEvent,
@@ -131,6 +132,7 @@ final class DeviceActivityMonitoringModel: ObservableObject {
     func stopMonitoring() {
         center.stopMonitoring([Self.activityName])
         Self.managedSettingsStore.clearAllSettings()
+        HushLockdownState.clear()
         userDefaults?.removeObject(forKey: Self.eventContextLabelsKey)
         userDefaults?.removeObject(forKey: Self.eventApplicationTokensKey)
         userDefaults?.removeObject(forKey: Self.appUsageStatesKey)
