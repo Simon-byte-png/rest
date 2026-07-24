@@ -45,6 +45,9 @@ const environmentSchema = z
       .default("false")
       .transform((value) => value === "true"),
     HUSH_DEMO_TOKEN: z.string().min(8).optional(),
+    HUSH_REST_DECISION_PROVIDER: z
+      .enum(["canned", "unavailable"])
+      .default("canned"),
     LOG_LEVEL: z
       .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
       .default("info")
