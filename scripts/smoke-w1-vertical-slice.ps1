@@ -39,18 +39,90 @@ function Invoke-HushPost {
         [string]$IdempotencyKey = ""
     )
 
-    return Invoke-RestMethod `
+    $response = Invoke-HushRequest `
         -Method Post `
-        -Uri "$BaseUrl$Path" `
-        -Headers (New-HushHeaders `
+        -Path $Path `
+        -RequestId $RequestId `
+        -Body $Body `
+        -IdempotencyKey $IdempotencyKey
+    return $response.Body
+}
+
+function Invoke-HushRequest {
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("Get", "Post")]
+        [string]$Method,
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [string]$RequestId,
+        [hashtable]$Body,
+        [string]$IdempotencyKey = ""
+    )
+
+    $endpoint = "$BaseUrl$Path"
+    Write-Host "  -> $Method $Path request_id=$RequestId"
+
+    $arguments = @{
+        Method          = $Method
+        Uri             = $endpoint
+        Headers         = New-HushHeaders `
             -RequestId $RequestId `
-            -IdempotencyKey $IdempotencyKey) `
-        -ContentType "application/json" `
-        -Body ($Body | ConvertTo-Json -Depth 12 -Compress)
+            -IdempotencyKey $IdempotencyKey
+        UseBasicParsing = $true
+    }
+    if ($null -ne $Body) {
+        $arguments["ContentType"] = "application/json"
+        $arguments["Body"] = $Body | ConvertTo-Json -Depth 12 -Compress
+    }
+
+    try {
+        $response = Invoke-WebRequest @arguments
+        $parsedBody = if ([string]::IsNullOrWhiteSpace($response.Content)) {
+            $null
+        } else {
+            $response.Content | ConvertFrom-Json
+        }
+        $origin = $response.Headers["X-Hush-Data-Origin"]
+        if ([string]::IsNullOrWhiteSpace($origin)) {
+            $origin = "n/a"
+        }
+        Write-Host "  <- HTTP $($response.StatusCode) request_id=$RequestId origin=$origin"
+        return [PSCustomObject]@{
+            StatusCode = [int]$response.StatusCode
+            Headers    = $response.Headers
+            Body       = $parsedBody
+        }
+    } catch {
+        $status = "network_or_unknown"
+        if ($null -ne $_.Exception.Response) {
+            try {
+                $status = [int]$_.Exception.Response.StatusCode
+            } catch {
+                $status = $_.Exception.Response.StatusCode
+            }
+        }
+        $responseText = $_.ErrorDetails.Message
+        if ([string]::IsNullOrWhiteSpace($responseText)) {
+            $responseText = $_.Exception.Message
+        }
+        throw @"
+Hush smoke request failed.
+Endpoint: $Method $endpoint
+Request ID: $RequestId
+Status: $status
+Response: $responseText
+"@
+    }
 }
 
 Write-Host "1/5 health"
-$health = Invoke-RestMethod -Method Get -Uri "$BaseUrl/v1/health"
+$healthResponse = Invoke-HushRequest `
+    -Method Get `
+    -Path "/v1/health" `
+    -RequestId "req_smoke_health"
+$health = $healthResponse.Body
 if ($health.status -ne "ok" -or $health.contract_version -ne "1.0") {
     throw "Health response did not match Contract v1."
 }
@@ -148,10 +220,11 @@ Write-Host "5/5 Handoff poll"
 $terminal = $null
 for ($attempt = 0; $attempt -lt 30; $attempt += 1) {
     $pollRequestId = "req_smoke_poll_$attempt"
-    $state = Invoke-RestMethod `
+    $pollResponse = Invoke-HushRequest `
         -Method Get `
-        -Uri "$BaseUrl/v1/handoff/$($job.job_id)" `
-        -Headers (New-HushHeaders -RequestId $pollRequestId)
+        -Path "/v1/handoff/$($job.job_id)" `
+        -RequestId $pollRequestId
+    $state = $pollResponse.Body
 
     Write-Host "  $($state.status) / $($state.progress_stage)"
     if ($state.status -in @("succeeded", "failed", "cancelled")) {

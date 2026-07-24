@@ -31,8 +31,13 @@ corepack pnpm install
 corepack pnpm dev
 ```
 
-The server listens on `PORT` (default `3000`). `GET /v1/health` does not require
-client headers. All other W1 routes require:
+The server listens on `HOST` and `PORT`. Safe defaults are
+`127.0.0.1:3000`, which are reachable only from the same machine. For an
+explicit trusted-LAN Apple integration session, set `HOST=0.0.0.0` and use
+the Windows machine's LAN IPv4 address from the Apple device. See
+`../docs/15_APPLE_MOCK_INTEGRATION_RELEASE.md`.
+
+`GET /v1/health` does not require client headers. All other W1 routes require:
 
 ```text
 X-Request-ID
@@ -52,8 +57,9 @@ corepack pnpm build
 corepack pnpm check
 ```
 
-`test:contracts` validates fixtures and local OpenAPI references. Integration
-tests use Fastify injection, so they do not need a listening TCP port.
+`test:contracts` validates fixtures and local OpenAPI references. W1-04
+vertical-slice tests use real TCP/HTTP on a random `127.0.0.1` port and do not
+expose a stable development port.
 
 ## Current provider behavior
 

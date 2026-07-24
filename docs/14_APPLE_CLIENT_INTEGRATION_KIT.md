@@ -11,11 +11,17 @@ integration.
 
 | Environment | Base URL |
 |---|---|
-| Local | `http://127.0.0.1:3000` |
+| Same Windows host | `http://127.0.0.1:3000` |
+| Trusted LAN | `http://<windows-lan-ipv4>:<port>` |
 | Demo | `https://<demo-host>` |
 
 The Demo URL is a placeholder until deployment. Keep the base URL in client
 configuration, not inside feature views.
+
+An iPhone or a different Mac must not use `127.0.0.1`; that address points
+back to the Apple device itself. See
+`15_APPLE_MOCK_INTEGRATION_RELEASE.md` for LAN startup, firewall, ATS, and
+local-network permission guidance.
 
 ## 2. Required headers
 
@@ -455,7 +461,8 @@ pnpm dev
 
 The Apple client then:
 
-1. uses `http://127.0.0.1:3000`;
+1. uses `http://<windows-lan-ipv4>:3000` from another machine, or
+   `http://127.0.0.1:3000` only when the client runs on the server host;
 2. sends the matching demo token;
 3. displays `SAMPLE MODE` after observing origin `mock`;
 4. uses Rest APIs normally;

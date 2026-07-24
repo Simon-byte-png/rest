@@ -95,9 +95,13 @@ demo
 建议：
 
 ```text
-Backend: 3000
+Backend: 127.0.0.1:3000（安全默认）
 Contract docs: 3001（可选）
 Apple Client: 连接配置中的 base URL
 ```
+
+只有在可信局域网进行跨机器 Apple 联调时，才显式设置
+`HOST=0.0.0.0`；结束后恢复 `127.0.0.1` 并撤销临时防火墙规则。详细流程见
+`15_APPLE_MOCK_INTEGRATION_RELEASE.md`。
 
 实际端口在开工时冻结。
