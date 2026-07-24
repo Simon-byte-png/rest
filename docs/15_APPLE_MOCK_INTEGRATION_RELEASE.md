@@ -1,6 +1,7 @@
 # W1-05｜Apple Mock Integration Release
 
-Status: ready for trusted-LAN integration.  
+Status: Windows Mock server release path verified; Mac/iPhone last-hop
+integration remains an Apple Owner manual check.
 Contract: frozen Contract v1 (`1.0`).  
 Owner boundary: W1 provides the backend release and integration support;
 Apple configuration remains M1/M2 work.
@@ -35,8 +36,8 @@ corepack pnpm --version
 Required:
 
 ```text
-Node.js 20.x
-pnpm 9.x
+Node.js 20.19.5 (supported range >=20.19 <21)
+pnpm 9.15.9 (supported range >=9 <10)
 ```
 
 Install repository dependencies before the integration session:
@@ -93,6 +94,10 @@ Write-Host $env:HUSH_DEMO_TOKEN
 cd server
 corepack pnpm dev
 ```
+
+`PUBLIC_BASE_URL` is currently validated but not consumed by W1 routes or the
+listener; setting it documents the intended callback/base address for future
+adapters and does not expose the server by itself.
 
 For a built release:
 
@@ -243,7 +248,12 @@ When origin is `mock`, the UI must display `SAMPLE MODE`.
 
 ## 9. Apple integration checklist
 
-- [ ] Windows uses Node 20 and pnpm 9.
+The Windows-side loopback/TCP Mock flow, protected Demo graph, smoke script,
+and Contract responses are verified. The items below that require a Mac,
+physical iPhone, ATS, or Local Network permission are not verified by W1 and
+remain the final manual hop.
+
+- [ ] Windows uses Node 20.19.5 and pnpm 9.15.9.
 - [ ] Windows and Apple device are on the same trusted LAN.
 - [ ] Windows network profile is Private.
 - [ ] Server explicitly uses `HOST=0.0.0.0`.
@@ -372,7 +382,7 @@ processing, and polls, while each poll keeps its own Request ID.
 | `400 INVALID_REQUEST` | Header/body Request ID mismatch or invalid enum | Compare payload to Contract v1 |
 | `409 CONTRACT_VERSION_UNSUPPORTED` | Client version header not `1.0` | Stop integration and align contract version |
 | `404 JOB_NOT_FOUND` after restart | In-memory Job state was lost | Start a new Handoff after user action |
-| Response origin is `real` | Demo token was omitted | Do not present result as Sample Mode |
+| Expected Demo but response is rejected or origin is not `mock` | Demo flag/token mismatch or wrong endpoint configuration | Stop; verify server flag and runtime token without logging it |
 | iPhone cannot reach `127.0.0.1` | Loopback points to iPhone | Use Windows LAN IPv4 address |
 
 ## 14. Apple Owner Action Items
@@ -443,6 +453,7 @@ Get-NetTCPConnection -LocalPort 3000 -State Listen `
 | Request/contract/error validation | Real |
 | Rest application service | Real |
 | Handoff Job, polling, idempotency | Real, process-local memory |
+| Terminal Job/claim cleanup | Five-minute-throttled opportunistic in-memory cleanup |
 | Rest Quest library | Fixed local sample content |
 | Sample Mode selection | Real server flag + token validation |
 | Agent in Sample Mode | `CannedAgentLLM` |
@@ -450,7 +461,8 @@ Get-NetTCPConnection -LocalPort 3000 -State Listen `
 | Open Loops Only | Real application flow |
 | Gmail Provider/OAuth | Not implemented by W1 |
 | Photon/iMessage | Not implemented by W1 |
-| Apple UI and platform permissions | Apple Owner responsibility |
+| Windows Mock TCP/Contract path | Verified |
+| Mac/iPhone final LAN, ATS, and permission hop | Not yet verified; Apple Owner responsibility |
 | HTTPS on trusted-LAN server | Not provided |
 
 The local server is for a short trusted-LAN integration session, not public

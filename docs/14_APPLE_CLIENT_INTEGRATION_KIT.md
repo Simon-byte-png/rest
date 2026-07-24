@@ -41,7 +41,7 @@ These operations also require an idempotency key:
 POST /v1/rest/feedback
 POST /v1/handoff/start
 
-Idempotency-Key: <stable key for this logical operation>
+Idempotency-Key: <stable 8–128 character key for this logical operation>
 ```
 
 Sample Mode additionally uses:
@@ -51,7 +51,8 @@ X-Hush-Demo-Token: <private runtime token>
 ```
 
 Do not ship a production demo token in the repository or App binary.
-`GET /v1/health` does not require client headers.
+`GET /v1/health` does not require client headers, but it returns the same
+three Contract response headers.
 
 Every Rest and Handoff response returns:
 
@@ -72,7 +73,8 @@ Behavior:
 
 - server disabled + token header: `403 DEMO_MODE_DISABLED`;
 - server enabled + wrong token: `403 DEMO_MODE_DISABLED`;
-- server enabled + no token: real service graph, origin `real`;
+- server enabled + no token: normal service graph; origin is graph-derived
+  and may be `mock` when Canned/Noop/Console providers participate;
 - server enabled + correct token: Mock service graph, origin `mock`.
 
 The Apple UI must visibly label all `mock` responses as `SAMPLE MODE`.
@@ -89,7 +91,8 @@ CLIENT_VERSION="0.1.0"
 DEMO_TOKEN="<local-demo-token>"
 ```
 
-Remove the demo-token header to exercise the real service graph.
+Remove the demo-token header to exercise the normal graph. Do not infer that
+it is fully real; trust `X-Hush-Data-Origin`.
 
 ### Health
 
@@ -369,10 +372,11 @@ For a successful Open Loops Only Job:
 - `held_items`, `tomorrow_first_step`, `conclusion`, and `coverage_note`
   come from the Pause Receipt.
 
-Cancellation is cooperative. The state becomes `cancelled` immediately and
-must never later become `succeeded`. The current service does not pass an
-`AbortSignal` to an already-running provider call, so the provider call may
-finish in the background before the worker observes cancellation.
+Cancellation uses CAS plus a Job-scoped `AbortController`. The state becomes
+`cancelled`, the active Agent/Mail/Draft call receives an aborted signal, and
+late provider or timeout results cannot replace the terminal state. A
+Completion delivery already following a persisted success can also be
+aborted without reversing `succeeded`.
 
 ## 8. Error handling and fallback
 
@@ -413,13 +417,13 @@ Use both HTTP status and `error.code`; never branch on localized
 
 | Value | Meaning | UI requirement |
 |---|---|---|
-| `real` | Real service graph selected | Normal UI |
-| `mock` | Protected Sample Mode selected | Show `SAMPLE MODE` |
+| `real` | Every participating provider in the selected graph declares real origin | Normal UI |
+| `mock` | Demo selected, or any Canned/Fixture/Recording/Noop/Console provider participates | Show `SAMPLE MODE` |
 | `cached` | Previously verified result reused | Show stale/cached state when time-sensitive |
 
-Treat an unknown or missing origin on a Rest/Handoff response as a protocol
-failure. Health currently exposes contract/provider status but does not carry
-the data-origin header.
+Treat an unknown or missing origin on a W1 response as a protocol failure.
+Health also carries the data-origin header and conservatively reports `mock`
+unless both normal Rest and Handoff graphs are fully real.
 
 ## 10. Swift enum and nullable checklist
 

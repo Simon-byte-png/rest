@@ -13,6 +13,7 @@ import {
 } from "./infra/in-memory.js";
 import {
   type AgentLLM,
+  type DataOrigin,
   type HandoffCompletionSink,
   type MailProvider,
   type MessagingChannel
@@ -33,6 +34,7 @@ export interface ServerCompositionOverrides {
   demoMail?: MailProvider;
   messagingChannel?: MessagingChannel;
   completionSink?: HandoffCompletionSink;
+  demoCompletionSink?: HandoffCompletionSink;
   completionRecipientId?: string;
 }
 
@@ -53,7 +55,7 @@ export function buildServerDependencies(
           localAgent
         )
       : localAgent);
-  const demoAgent = overrides.demoAgent ?? localAgent;
+  const demoAgent = overrides.demoAgent ?? new CannedAgentLLM();
   const realMail = overrides.realMail ?? new UnavailableMailProvider();
   const demoMail = overrides.demoMail ?? new FixtureMailProvider();
   const messaging =
@@ -66,22 +68,35 @@ export function buildServerDependencies(
           overrides.completionRecipientId
         )
       : new NoopHandoffCompletionSink());
+  const demoCompletionSink =
+    overrides.demoCompletionSink ?? new NoopHandoffCompletionSink();
+  if (demoCompletionSink === completionSink) {
+    throw new Error(
+      "Demo and normal Handoff graphs require distinct completion sinks."
+    );
+  }
   const clock = new SystemClock();
   const ids = new RandomIdGenerator();
 
   return {
     config,
+    restOrigin: graphOrigin(realAgent),
+    handoffOrigin: graphOrigin(realAgent, realMail, completionSink),
+    demoRestOrigin: "mock",
+    demoHandoffOrigin: "mock",
     rest: new RestService(
       realAgent,
       content,
       new InMemoryFeedbackRepository(),
-      new InMemoryIdempotencyStore<boolean>()
+      new InMemoryIdempotencyStore<boolean>(),
+      { llmTimeoutMs: config.LLM_TIMEOUT_MS }
     ),
     demoRest: new RestService(
       demoAgent,
       content,
       new InMemoryFeedbackRepository(),
-      new InMemoryIdempotencyStore<boolean>()
+      new InMemoryIdempotencyStore<boolean>(),
+      { llmTimeoutMs: config.LLM_TIMEOUT_MS }
     ),
     handoff: new HandoffService(
       new InMemoryHandoffJobRepository(),
@@ -90,16 +105,32 @@ export function buildServerDependencies(
       realAgent,
       completionSink,
       clock,
-      ids
+      ids,
+      {
+        timeouts: {
+          llmMs: config.LLM_TIMEOUT_MS,
+          mailFetchMs: config.MAIL_FETCH_TIMEOUT_MS,
+          draftCreateMs: config.DRAFT_CREATE_TIMEOUT_MS,
+          completionMs: config.COMPLETION_SEND_TIMEOUT_MS
+        }
+      }
     ),
     demoHandoff: new HandoffService(
       new InMemoryHandoffJobRepository(),
       new InMemoryIdempotencyStore<string>(),
       demoMail,
       demoAgent,
-      completionSink,
+      demoCompletionSink,
       clock,
-      ids
+      ids,
+      {
+        timeouts: {
+          llmMs: config.LLM_TIMEOUT_MS,
+          mailFetchMs: config.MAIL_FETCH_TIMEOUT_MS,
+          draftCreateMs: config.DRAFT_CREATE_TIMEOUT_MS,
+          completionMs: config.COMPLETION_SEND_TIMEOUT_MS
+        }
+      }
     ),
     providerHealth: async () => ({
       agent: await realAgent.health(),
@@ -109,4 +140,12 @@ export function buildServerDependencies(
       handoff_jobs: "ready"
     })
   };
+}
+
+function graphOrigin(
+  ...providers: Array<{ dataOrigin?: DataOrigin }>
+): DataOrigin {
+  return providers.every((provider) => provider.dataOrigin === "real")
+    ? "real"
+    : "mock";
 }

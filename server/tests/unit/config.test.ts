@@ -25,4 +25,33 @@ describe("server listener configuration", () => {
     expect(config.HOST).toBe("0.0.0.0");
     expect(config.PORT).toBe(4310);
   });
+
+  it("provides bounded provider timeout defaults", () => {
+    const config = loadConfig({
+      NODE_ENV: "test",
+      LOG_LEVEL: "silent"
+    });
+
+    expect(config).toMatchObject({
+      LLM_TIMEOUT_MS: 15_000,
+      MAIL_FETCH_TIMEOUT_MS: 10_000,
+      DRAFT_CREATE_TIMEOUT_MS: 10_000,
+      COMPLETION_SEND_TIMEOUT_MS: 5_000
+    });
+  });
+
+  it.each([
+    ["LLM_TIMEOUT_MS", "0"],
+    ["MAIL_FETCH_TIMEOUT_MS", "-1"],
+    ["DRAFT_CREATE_TIMEOUT_MS", "NaN"],
+    ["COMPLETION_SEND_TIMEOUT_MS", "120001"]
+  ])("rejects invalid %s=%s", (name, value) => {
+    expect(() =>
+      loadConfig({
+        NODE_ENV: "test",
+        LOG_LEVEL: "silent",
+        [name]: value
+      })
+    ).toThrow("Invalid server configuration");
+  });
 });

@@ -31,6 +31,7 @@ import type {
 } from "../../src/domain/ports.js";
 import {
   FixtureMailProvider,
+  MessagingHandoffCompletionSink,
   RecordingMessagingChannel,
   UnavailableMailProvider
 } from "../../src/infra/provider-stubs.js";
@@ -84,7 +85,10 @@ describe("W1-04 Mock Vertical Slice", () => {
         realMail: new FixtureMailProvider(),
         demoMail: new FixtureMailProvider(),
         messagingChannel: recordingMessaging,
-        completionRecipientId: "mock-apple-client"
+        demoCompletionSink: new MessagingHandoffCompletionSink(
+          recordingMessaging,
+          "mock-apple-client"
+        )
       },
       servers
     );
@@ -379,7 +383,7 @@ describe("W1-04 Mock Vertical Slice", () => {
       status: "cancelled",
       summary: null
     });
-    expect(slowMail.receivedOptions).toBeUndefined();
+    expect(slowMail.receivedOptions?.signal?.aborted).toBe(true);
   });
 
   it("degrades unavailable Gmail to a successful OPEN_LOOPS_ONLY result", async () => {
@@ -450,7 +454,7 @@ describe("W1-04 Mock Vertical Slice", () => {
     });
     expect(disabled.statusCode).toBe(403);
     expect(disabled.json().error.code).toBe("DEMO_MODE_DISABLED");
-    expect(disabled.headers["x-hush-data-origin"]).toBe("real");
+    expect(disabled.headers["x-hush-data-origin"]).toBe("mock");
 
     const wrongTokenId = "req_sample_wrong_token";
     const wrongToken = await request(mockServer, {
@@ -464,7 +468,7 @@ describe("W1-04 Mock Vertical Slice", () => {
     });
     expect(wrongToken.statusCode).toBe(403);
     expect(wrongToken.json().error.code).toBe("DEMO_MODE_DISABLED");
-    expect(wrongToken.headers["x-hush-data-origin"]).toBe("real");
+    expect(wrongToken.headers["x-hush-data-origin"]).toBe("mock");
 
     const noTokenId = "req_sample_no_token";
     const noToken = await request(mockServer, {
@@ -474,7 +478,7 @@ describe("W1-04 Mock Vertical Slice", () => {
       payload: usagePayload(noTokenId)
     });
     expect(noToken.statusCode).toBe(200);
-    expect(noToken.headers["x-hush-data-origin"]).toBe("real");
+    expect(noToken.headers["x-hush-data-origin"]).toBe("mock");
 
     const validId = "req_sample_valid";
     const valid = await request(mockServer, {
