@@ -5,66 +5,41 @@ struct HushWaveBackground: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [HushColor.midnight, HushColor.dusk, HushColor.midnight],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-
-            RadialGradient(
-                colors: [HushColor.indigo.opacity(0.22), .clear],
-                center: UnitPoint(x: 0.14, y: 0.05),
-                startRadius: 8,
-                endRadius: 360
-            )
+            Color.black
 
             TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion)) { timeline in
                 Canvas { context, size in
                     let elapsed = timeline.date.timeIntervalSinceReferenceDate
-                    let phase = reduceMotion ? 0.7 : elapsed.truncatingRemainder(dividingBy: 12) * 0.52
-                    let centerY = size.height * 0.53
+                    let phase = reduceMotion
+                        ? 0.35
+                        : elapsed.truncatingRemainder(dividingBy: 24) * 0.16
+                    let breath = reduceMotion
+                        ? 0.92
+                        : 0.88 + sin(elapsed * .pi * 2 / 7.5) * 0.12
+                    let centerY = size.height * 0.81
+                    let amplitude = min(86, size.height * 0.12) * breath
 
                     drawWave(
                         context: &context,
                         size: size,
                         centerY: centerY,
-                        amplitude: min(72, size.height * 0.11),
-                        frequency: 2.35,
+                        amplitude: amplitude,
                         phase: phase,
-                        lineWidth: 2.2,
-                        colors: [HushColor.cyan.opacity(0.14), HushColor.cyan.opacity(0.88), HushColor.violet.opacity(0.24)]
+                        lineWidth: 8,
+                        opacity: 0.045
                     )
 
                     drawWave(
                         context: &context,
                         size: size,
-                        centerY: centerY + 7,
-                        amplitude: min(52, size.height * 0.08),
-                        frequency: 2.9,
-                        phase: -phase * 0.72 + 1.4,
-                        lineWidth: 1.5,
-                        colors: [HushColor.violet.opacity(0.10), HushColor.violet.opacity(0.78), HushColor.cyan.opacity(0.18)]
-                    )
-
-                    drawWave(
-                        context: &context,
-                        size: size,
-                        centerY: centerY - 12,
-                        amplitude: min(34, size.height * 0.055),
-                        frequency: 3.5,
-                        phase: phase * 0.45 + 2.2,
-                        lineWidth: 1,
-                        colors: [.clear, Color.white.opacity(0.34), .clear]
+                        centerY: centerY,
+                        amplitude: amplitude,
+                        phase: phase,
+                        lineWidth: 1.15,
+                        opacity: 0.88
                     )
                 }
             }
-            .opacity(0.92)
-
-            LinearGradient(
-                colors: [.clear, HushColor.midnight.opacity(0.08), HushColor.midnight.opacity(0.72)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
         }
         .ignoresSafeArea()
         .accessibilityHidden(true)
@@ -75,10 +50,9 @@ struct HushWaveBackground: View {
         size: CGSize,
         centerY: CGFloat,
         amplitude: CGFloat,
-        frequency: Double,
         phase: Double,
         lineWidth: CGFloat,
-        colors: [Color]
+        opacity: Double
     ) {
         guard size.width > 0 else { return }
 
@@ -87,10 +61,11 @@ struct HushWaveBackground: View {
 
         for x in stride(from: 0.0, through: size.width, by: step) {
             let progress = x / size.width
-            let envelope = pow(max(0, sin(.pi * progress)), 1.35)
-            let harmonic = sin(progress * .pi * 2 * frequency + phase)
-            let undertone = sin(progress * .pi * 5.2 - phase * 0.48) * 0.18
-            let y = centerY + (harmonic + undertone) * amplitude * envelope
+            let envelope = pow(max(0, sin(.pi * progress)), 0.82)
+            let mainWave = sin(progress * .pi * 6.3 + phase) * 0.72
+            let unevenRise = sin(progress * .pi * 2.9 - phase * 0.36 + 0.8) * 0.22
+            let fineMotion = sin(progress * .pi * 10.8 + phase * 0.28) * 0.06
+            let y = centerY + (mainWave + unevenRise + fineMotion) * amplitude * envelope
 
             if x == 0 {
                 path.move(to: CGPoint(x: x, y: y))
@@ -101,11 +76,7 @@ struct HushWaveBackground: View {
 
         context.stroke(
             path,
-            with: .linearGradient(
-                Gradient(colors: colors),
-                startPoint: CGPoint(x: 0, y: centerY),
-                endPoint: CGPoint(x: size.width, y: centerY)
-            ),
+            with: .color(Color.white.opacity(opacity)),
             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
         )
     }

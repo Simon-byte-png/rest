@@ -1,72 +1,93 @@
 import SwiftUI
 
 struct HushDoorView: View {
-    let onCheckIn: () -> Void
-    let onSurpriseMe: () -> Void
-    let onSleepHandoff: () -> Void
+    let taskText: String
+    let onOpenTask: () -> Void
+    let onSettings: () -> Void
 
     var body: some View {
-        VStack(spacing: HushSpacing.xl) {
-            Spacer(minLength: HushSpacing.lg)
-
-            HushHeroMark()
-
-            VStack(spacing: HushSpacing.sm) {
-                Text("现在，先不用撑住。")
-                    .font(HushType.hero)
-                    .foregroundStyle(HushColor.textPrimary)
-                    .multilineTextAlignment(.center)
-
-                Text("用两三分钟，把注意力从任务里拿回来。")
-                    .font(HushType.body)
-                    .foregroundStyle(HushColor.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
-
-            VStack(spacing: HushSpacing.sm) {
-                Button(action: onCheckIn) {
-                    Label("说说我怎么累", systemImage: "text.bubble")
+        GeometryReader { geometry in
+            ZStack(alignment: .topTrailing) {
+                Button(action: onOpenTask) {
+                    HushTypewriterText(text: taskText)
+                        .frame(
+                            width: min(290, geometry.size.width - 88),
+                            alignment: .leading
+                        )
                 }
-                .buttonStyle(HushPrimaryButtonStyle())
-
-                Button(action: onSurpriseMe) {
-                    Label("直接来一个", systemImage: "sparkles")
-                }
-                .buttonStyle(HushSecondaryButtonStyle())
-            }
-            .hushPanel()
-
-            Button(action: onSleepHandoff) {
-                HStack(spacing: HushSpacing.sm) {
-                    Image(systemName: "moon.stars")
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("我准备睡了")
-                            .font(HushType.bodyStrong)
-                        Text("把没做完的事先交出去")
-                            .font(HushType.micro)
-                            .foregroundStyle(HushColor.textSecondary)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                }
-                .foregroundStyle(HushColor.textPrimary)
-                .padding(HushSpacing.md)
-                .background(
-                    RoundedRectangle(cornerRadius: HushRadius.medium, style: .continuous)
-                        .fill(Color.white.opacity(0.055))
+                .buttonStyle(.plain)
+                .accessibilityLabel(taskText)
+                .accessibilityHint("打开任务详情")
+                .position(
+                    x: geometry.size.width * 0.43,
+                    y: geometry.size.height * 0.52
                 )
+
+                Button(action: onSettings) {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundStyle(Color.white.opacity(0.78))
+                        .frame(width: 34, height: 34)
+                        .background(Circle().fill(Color.white.opacity(0.035)))
+                        .overlay(Circle().stroke(Color.white.opacity(0.12), lineWidth: 0.8))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("设置")
+                .padding(.top, HushSpacing.md)
+                .padding(.trailing, HushSpacing.lg)
             }
-            .buttonStyle(.plain)
-            .accessibilityHint("进入睡前交接演示")
+        }
+    }
+}
 
-            Text("帮你选择一个安全、具体的暂停动作。")
-                .font(HushType.micro)
-                .foregroundStyle(HushColor.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, HushSpacing.sm)
+private struct HushTypewriterText: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-            Spacer(minLength: HushSpacing.lg)
+    let text: String
+
+    @State private var visibleText = ""
+
+    var body: some View {
+        Text(visibleText)
+            .font(HushType.agentTask)
+            .tracking(0.8)
+            .lineSpacing(6)
+            .foregroundStyle(Color.white.opacity(0.94))
+            .multilineTextAlignment(.leading)
+            .fixedSize(horizontal: false, vertical: true)
+            .task(id: text) {
+                await revealText()
+            }
+    }
+
+    @MainActor
+    private func revealText() async {
+        visibleText = ""
+
+        guard !reduceMotion else {
+            visibleText = text
+            return
+        }
+
+        for character in text {
+            guard !Task.isCancelled else { return }
+            visibleText.append(character)
+
+            let delay: UInt64
+            switch character {
+            case "，", "、":
+                delay = 220_000_000
+            case "。", "！", "？":
+                delay = 380_000_000
+            default:
+                delay = 92_000_000
+            }
+
+            do {
+                try await Task.sleep(nanoseconds: delay)
+            } catch {
+                return
+            }
         }
     }
 }

@@ -42,8 +42,15 @@ final class HushDemoStore: ObservableObject {
 
     let content: HushDemoContentSnapshot
 
-    init(provider: any HushRestContentProviding = BundledHushRestContentProvider.automatic) {
+    init(
+        provider: any HushRestContentProviding = BundledHushRestContentProvider.automatic,
+        initialQuestID: String? = nil
+    ) {
         content = HushDemoContentSnapshot.load(from: provider)
+        if let initialQuestID,
+           let initialIndex = content.quests.firstIndex(where: { $0.id == initialQuestID }) {
+            selectedQuestIndex = initialIndex
+        }
     }
 
     var currentQuest: HushQuestContent {
@@ -69,6 +76,10 @@ final class HushDemoStore: ObservableObject {
     func surpriseMe() {
         selectedPreference = nil
         selectFirstMatchingQuest(preference: nil)
+        move(to: .quest)
+    }
+
+    func openCurrentQuest() {
         move(to: .quest)
     }
 
