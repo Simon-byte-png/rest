@@ -1,0 +1,111 @@
+import DeviceActivity
+import FamilyControls
+import Foundation
+import ManagedSettings
+
+@MainActor
+final class DeviceActivityMonitoringModel: ObservableObject {
+    @Published private(set) var isMonitoring = false
+    @Published private(set) var errorMessage: String?
+    @Published private(set) var lastThresholdDate: Date?
+
+    private static let appGroupIdentifier = "group.com.JenniferJi.Hush"
+    private static let activityName = DeviceActivityName("hush.daily-monitor")
+    private static let checkpointMinutes = Array(stride(from: 5, through: 60, by: 5))
+    private static let lastThresholdKey = "deviceActivity.lastThresholdDate"
+    private static let managedSettingsStore = ManagedSettingsStore(
+        named: ManagedSettingsStore.Name("hush.interruption")
+    )
+
+    private let center = DeviceActivityCenter()
+    private let userDefaults = UserDefaults(suiteName: appGroupIdentifier)
+
+    init() {
+        refreshStatus()
+    }
+
+    var monitoringStatusMessage: String {
+        isMonitoring ? "每 5 分钟云端检查已启用" : "尚未启动设备活动监测"
+    }
+
+    var lastThresholdMessage: String {
+        guard let lastThresholdDate else {
+            return "尚未收到阈值事件"
+        }
+
+        return "最近一次阈值事件：\(lastThresholdDate.formatted(date: .abbreviated, time: .shortened))"
+    }
+
+    func refreshStatus() {
+        isMonitoring = center.activities.contains(Self.activityName)
+        lastThresholdDate = userDefaults?.object(forKey: Self.lastThresholdKey) as? Date
+    }
+
+    func startMonitoring(selection: FamilyActivitySelection) {
+        guard
+            !selection.applicationTokens.isEmpty
+                || !selection.categoryTokens.isEmpty
+                || !selection.webDomainTokens.isEmpty
+        else {
+            errorMessage = "请先选择至少一个 App、类别或网站。"
+            return
+        }
+
+        let schedule = DeviceActivitySchedule(
+            intervalStart: DateComponents(hour: 0, minute: 0),
+            intervalEnd: DateComponents(hour: 23, minute: 59),
+            repeats: true
+        )
+
+        let events = Dictionary(
+            uniqueKeysWithValues: Self.checkpointMinutes.map { minutes in
+                let event: DeviceActivityEvent
+
+                if #available(iOS 17.4, *) {
+                    event = DeviceActivityEvent(
+                        applications: selection.applicationTokens,
+                        categories: selection.categoryTokens,
+                        webDomains: selection.webDomainTokens,
+                        threshold: DateComponents(minute: minutes),
+                        includesPastActivity: false
+                    )
+                } else {
+                    event = DeviceActivityEvent(
+                        applications: selection.applicationTokens,
+                        categories: selection.categoryTokens,
+                        webDomains: selection.webDomainTokens,
+                        threshold: DateComponents(minute: minutes)
+                    )
+                }
+
+                return (Self.eventName(for: minutes), event)
+            }
+        )
+
+        do {
+            center.stopMonitoring([Self.activityName])
+            Self.managedSettingsStore.clearAllSettings()
+            try center.startMonitoring(
+                Self.activityName,
+                during: schedule,
+                events: events
+            )
+            errorMessage = nil
+            refreshStatus()
+        } catch {
+            errorMessage = "无法启动设备活动监测，请检查屏幕使用时间权限后重试。"
+            refreshStatus()
+        }
+    }
+
+    func stopMonitoring() {
+        center.stopMonitoring([Self.activityName])
+        Self.managedSettingsStore.clearAllSettings()
+        errorMessage = nil
+        refreshStatus()
+    }
+
+    private static func eventName(for minutes: Int) -> DeviceActivityEvent.Name {
+        DeviceActivityEvent.Name("hush.checkpoint.\(minutes)")
+    }
+}

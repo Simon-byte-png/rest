@@ -1,0 +1,356 @@
+import FamilyControls
+import SwiftUI
+
+@main
+struct HushApp: App {
+    @UIApplicationDelegateAdaptor(HushAppDelegate.self) private var appDelegate
+
+    var body: some Scene {
+        WindowGroup {
+            HushPlaceholderView()
+        }
+    }
+}
+
+private struct HushPlaceholderView: View {
+    @State private var isShowingSettings = false
+    @StateObject private var restSession = RestSessionLiveActivityModel()
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Text(HushProduct.displayName)
+                    .font(.largeTitle)
+                    .fontWeight(.semibold)
+
+                Text("我现在需要休息")
+                    .font(.headline)
+
+                restSessionCard
+            }
+            .padding()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        isShowingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                    .accessibilityLabel("设置")
+                }
+            }
+        }
+        .sheet(isPresented: $isShowingSettings) {
+            HushSettingsView()
+        }
+        .task {
+            await restSession.restoreIfNeeded()
+        }
+    }
+
+    private var restSessionCard: some View {
+        VStack(spacing: 14) {
+            Text(restSession.sessionName)
+                .font(.title3.weight(.semibold))
+
+            if restSession.phase != .idle {
+                Text(restSession.formattedRemainingTime)
+                    .font(.system(.largeTitle, design: .rounded).monospacedDigit())
+                    .contentTransition(.numericText())
+                    .accessibilityLabel("剩余 \(restSession.formattedRemainingTime)")
+            }
+
+            Text(restSession.phaseMessage)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            restSessionActions
+
+            if let errorMessage = restSession.errorMessage {
+                Text(errorMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(20)
+        .background(.indigo.opacity(0.08), in: RoundedRectangle(cornerRadius: 20))
+    }
+
+    @ViewBuilder
+    private var restSessionActions: some View {
+        switch restSession.phase {
+        case .idle:
+            Button("开始休息") {
+                Task {
+                    await restSession.start()
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.indigo)
+        case .running:
+            HStack {
+                Button("暂停") {
+                    Task {
+                        await restSession.pause()
+                    }
+                }
+                .buttonStyle(.bordered)
+
+                Button("提前结束", role: .destructive) {
+                    Task {
+                        await restSession.endEarly()
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+        case .paused:
+            HStack {
+                Button("继续") {
+                    Task {
+                        await restSession.resume()
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.indigo)
+
+                Button("结束", role: .destructive) {
+                    Task {
+                        await restSession.endEarly()
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+        case .completed:
+            Button("再休息一分钟") {
+                Task {
+                    await restSession.startAgain()
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.indigo)
+        }
+    }
+}
+
+private struct HushSettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var authorization = FamilyControlsAuthorizationModel()
+    @StateObject private var selectionStore = FamilyActivitySelectionStore()
+    @StateObject private var monitoring = DeviceActivityMonitoringModel()
+    @StateObject private var notifications = NotificationAuthorizationModel()
+    @StateObject private var interruptionMode = InterruptionModeModel()
+    @StateObject private var agentSettings = AgentConnectionSettingsModel()
+    @State private var isShowingActivityPicker = false
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("屏幕使用时间") {
+                    Text(authorization.statusMessage)
+                        .foregroundStyle(.secondary)
+
+                    Button {
+                        Task {
+                            await authorization.requestAuthorization()
+                        }
+                    } label: {
+                        if authorization.isRequestingAuthorization {
+                            ProgressView()
+                        } else {
+                            Text("启用屏幕使用时间权限")
+                        }
+                    }
+                    .disabled(authorization.isRequestingAuthorization)
+
+                    if let errorMessage = authorization.errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+                }
+
+                Section("关注范围") {
+                    Text(selectionStore.selectionSummary)
+                        .foregroundStyle(.secondary)
+
+                    Button("选择要关注的 App") {
+                        Task {
+                            if !authorization.isAuthorized {
+                                await authorization.requestAuthorization()
+                            }
+
+                            if authorization.isAuthorized {
+                                isShowingActivityPicker = true
+                            }
+                        }
+                    }
+                    .disabled(authorization.isRequestingAuthorization)
+
+                    if selectionStore.selectedItemCount > 0 {
+                        Button("清除选择", role: .destructive) {
+                            monitoring.stopMonitoring()
+                            selectionStore.clearSelection()
+                        }
+                    }
+
+                    Text("选择由 Apple 的系统页面完成。Hush 只在本机保存匿名令牌。")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("设备活动监测") {
+                    Picker("提醒方式", selection: $interruptionMode.mode) {
+                        ForEach(InterruptionModeModel.Mode.allCases) { mode in
+                            Text(mode.title).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    Text(interruptionMode.mode.detail)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    TextField(
+                        "监测范围名称，例如：小红书",
+                        text: $agentSettings.contextLabel
+                    )
+
+                    TextField(
+                        "https://agent.example.com",
+                        text: $agentSettings.baseURL
+                    )
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                    Text(agentSettings.statusMessage)
+                        .font(.footnote)
+                        .foregroundStyle(
+                            agentSettings.isConfigured
+                                ? Color.secondary
+                                : Color.orange
+                        )
+
+                    if let lastResultMessage = agentSettings.lastResultMessage {
+                        Text(lastResultMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text(monitoring.monitoringStatusMessage)
+                        .foregroundStyle(.secondary)
+
+                    Text(monitoring.lastThresholdMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    if monitoring.isMonitoring {
+                        Button("停止监测", role: .destructive) {
+                            monitoring.stopMonitoring()
+                        }
+                    } else {
+                        Button("启动每 5 分钟云端检查") {
+                            monitoring.startMonitoring(selection: selectionStore.selection)
+                        }
+                        .disabled(
+                            !authorization.isAuthorized
+                                || selectionStore.selectedItemCount == 0
+                                || !agentSettings.isConfigured
+                                || !notifications.isAuthorized
+                        )
+                    }
+
+                    if let errorMessage = monitoring.errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+
+                    Text("每 5 分钟询问一次云端 Agent；具体名称只使用你主动填写的内容。")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("休息提醒") {
+                    Text(notifications.statusMessage)
+                        .foregroundStyle(.secondary)
+
+                    if !notifications.isAuthorized {
+                        Button {
+                            Task {
+                                await notifications.requestAuthorization()
+                            }
+                        } label: {
+                            if notifications.isRequestingAuthorization {
+                                ProgressView()
+                            } else {
+                                Text("启用休息提醒通知")
+                            }
+                        }
+                        .disabled(notifications.isRequestingAuthorization)
+                    }
+
+                    Button("发送测试提醒") {
+                        Task {
+                            await notifications.sendTestReminder()
+                        }
+                    }
+                    .disabled(!notifications.isAuthorized)
+
+                    if let errorMessage = notifications.errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+
+                    Text("达到监测阈值后，Hush 最多每 2 小时提醒一次，每天最多 3 次。")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("设置")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("完成") {
+                        dismiss()
+                    }
+                }
+            }
+            .task {
+                authorization.refreshStatus()
+                monitoring.refreshStatus()
+                agentSettings.refreshLastResult()
+                await notifications.refreshStatus()
+            }
+            .familyActivityPicker(
+                headerText: "选择希望 Hush 关注的 App、类别或网站",
+                footerText: "Hush 不会读取你的具体使用内容。",
+                isPresented: $isShowingActivityPicker,
+                selection: $selectionStore.selection
+            )
+            .onChange(of: isShowingActivityPicker) { _, isPresented in
+                guard !isPresented else {
+                    return
+                }
+
+                updateMonitoringAfterSelectionChange()
+            }
+        }
+    }
+
+    private func updateMonitoringAfterSelectionChange() {
+        guard monitoring.isMonitoring else {
+            return
+        }
+
+        if selectionStore.selectedItemCount == 0 {
+            monitoring.stopMonitoring()
+        } else {
+            monitoring.startMonitoring(selection: selectionStore.selection)
+        }
+    }
+}
