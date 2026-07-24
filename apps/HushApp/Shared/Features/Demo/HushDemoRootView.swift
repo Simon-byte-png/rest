@@ -26,14 +26,6 @@ struct HushDemoRootView: View {
                 }
                 .scrollIndicators(.hidden)
 
-                if let fallbackMessage = store.content.status.message {
-                    Text("本地内容降级：\(fallbackMessage)")
-                        .font(HushType.caption)
-                        .foregroundStyle(HushColor.warm)
-                        .lineLimit(2)
-                        .padding(.horizontal, HushSpacing.lg)
-                        .padding(.bottom, HushSpacing.sm)
-                }
             }
         }
         .frame(minWidth: 380, idealWidth: 420, minHeight: 580, idealHeight: 700)

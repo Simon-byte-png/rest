@@ -36,6 +36,7 @@ enum HushRadius {
 
 enum HushType {
     static let eyebrow = Font.system(size: 11, weight: .semibold, design: .rounded)
+    static let micro = Font.system(size: 10, weight: .regular, design: .rounded)
     static let caption = Font.system(size: 12, weight: .medium, design: .rounded)
     static let body = Font.system(size: 15, weight: .regular, design: .rounded)
     static let bodyStrong = Font.system(size: 15, weight: .semibold, design: .rounded)

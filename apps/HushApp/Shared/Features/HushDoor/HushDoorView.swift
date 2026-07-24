@@ -43,7 +43,7 @@ struct HushDoorView: View {
                         Text("我准备睡了")
                             .font(HushType.bodyStrong)
                         Text("把没做完的事先交出去")
-                            .font(HushType.caption)
+                            .font(HushType.micro)
                             .foregroundStyle(HushColor.textSecondary)
                     }
                     Spacer()
@@ -60,8 +60,8 @@ struct HushDoorView: View {
             .buttonStyle(.plain)
             .accessibilityHint("进入睡前交接演示")
 
-            Text("这里不是疲劳诊断。Hush 只帮你选一个安全、具体的暂停动作。")
-                .font(HushType.caption)
+            Text("帮你选择一个安全、具体的暂停动作。")
+                .font(HushType.micro)
                 .foregroundStyle(HushColor.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, HushSpacing.sm)

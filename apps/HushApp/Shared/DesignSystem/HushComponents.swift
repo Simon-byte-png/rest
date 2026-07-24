@@ -100,17 +100,17 @@ struct HushSampleModeBadge: View {
             Circle()
                 .fill(degraded ? HushColor.warm : HushColor.mint)
                 .frame(width: 6, height: 6)
-            Text(degraded ? "SAMPLE · FALLBACK" : "SAMPLE MODE")
-                .font(HushType.eyebrow)
-                .tracking(0.8)
+            Text(degraded ? "演示模式 · 备用内容" : "演示模式")
+                .font(HushType.micro)
+                .tracking(0.4)
         }
         .foregroundStyle(HushColor.textSecondary)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
         .background(Capsule().fill(Color.black.opacity(0.18)))
         .overlay(Capsule().stroke(HushColor.hairline, lineWidth: 1))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(degraded ? "Sample Mode，内容已降级" : "Sample Mode，当前为模拟演示")
+        .accessibilityLabel(degraded ? "演示模式，当前使用备用内容" : "当前为演示模式")
     }
 }
 
@@ -132,7 +132,7 @@ struct HushSourcePill: View {
 
     var body: some View {
         Label(text, systemImage: included ? "checkmark.circle.fill" : "minus.circle")
-            .font(HushType.caption)
+            .font(HushType.micro)
             .foregroundStyle(included ? HushColor.mint : HushColor.textSecondary)
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
