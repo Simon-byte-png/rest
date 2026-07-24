@@ -3,6 +3,9 @@ import {
   FIXTURE_CONTRACTS,
   createContractValidator
 } from "../../src/infra/contract-validator.js";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { usageSummarySchema } from "../../src/domain/contracts.js";
 
 describe("contract fixtures", () => {
   const validator = createContractValidator();
@@ -14,4 +17,20 @@ describe("contract fixtures", () => {
       expect(result.valid).toBe(true);
     });
   }
+
+  it.each([
+    "usage-summary-manual-ios.json",
+    "usage-summary-device-activity-ios.json",
+    "usage-summary-macos-app.json",
+    "usage-summary-macos-website.json"
+  ])("%s also matches the runtime Zod contract", (fixture) => {
+    const input = JSON.parse(
+      readFileSync(
+        resolve(process.cwd(), "../contracts/fixtures", fixture),
+        "utf8"
+      )
+    ) as unknown;
+
+    expect(usageSummarySchema.safeParse(input).success).toBe(true);
+  });
 });

@@ -50,6 +50,11 @@ paths:
     post:
       tags: [Rest]
       operationId: evaluateRest
+      description: >
+        Evaluates exactly one current iOS App, current Mac App, current Mac
+        website, or legacy UsageSummary. Current and legacy usage fields must
+        not be combined. The server only offers a choice; it never controls
+        Shield state or changes the next usage threshold.
       parameters:
         - $ref: "#/components/parameters/RequestId"
         - $ref: "#/components/parameters/ClientVersion"
@@ -78,6 +83,8 @@ paths:
         "400":
           $ref: "#/components/responses/Error"
         "409":
+          $ref: "#/components/responses/Error"
+        "503":
           $ref: "#/components/responses/Error"
 
   /v1/rest/check-in:

@@ -115,8 +115,11 @@ curl -X POST "$BASE_URL/v1/rest/evaluate" \
     "request_id":"req_curl_evaluate",
     "measured_at":"2026-07-24T15:20:00+08:00",
     "platform":"ios",
-    "trigger_source":"manual_ios",
-    "continuous_screen_minutes":null,
+    "trigger_source":"device_activity_threshold",
+    "user_provided_context_label":"小红书",
+    "daily_app_usage_minutes":35,
+    "estimated_continuous_app_usage_minutes":15,
+    "continuous_usage_is_estimated":true,
     "app_switches_last_10_minutes":null,
     "local_hour":15,
     "minutes_since_last_rest":96,
@@ -125,6 +128,36 @@ curl -X POST "$BASE_URL/v1/rest/evaluate" \
     "raw_app_names_included":false
   }'
 ```
+
+UsageSummary has four mutually exclusive formats:
+
+| Format | `trigger_source` | Usage fields |
+|---|---|---|
+| Current iOS/iPadOS App | `device_activity_threshold` | `user_provided_context_label`, `daily_app_usage_minutes`, `estimated_continuous_app_usage_minutes`, `continuous_usage_is_estimated=true` |
+| Current Mac App | `macos_usage_checkpoint` | `user_provided_context_label`, `daily_app_usage_minutes`, `continuous_app_usage_minutes`, `continuous_usage_is_estimated=false` |
+| Current Mac website | `macos_website_checkpoint` | `target_type=website`, `website_domain`, `label_source`, `daily_usage_minutes`, `continuous_usage_minutes`, `continuous_usage_is_estimated=false`, `full_url_included=false`, `page_title_included=false` |
+| Legacy | legacy triggers including deprecated `macos_rule` | `continuous_screen_minutes` |
+
+Never combine `continuous_screen_minutes` with current usage fields. The
+server returns `400 INVALID_REQUEST` for a mixed payload. `macos_rule` is
+legacy/deprecated; current Apple clients do not send `macos_rule` or
+`macos_rules`.
+
+`user_provided_context_label` is supplied by the user. It is not an Apple
+verified App name. The server trims it, normalizes it to Unicode NFC, accepts
+1–80 characters, rejects control characters, and does not include the raw
+label in ordinary logs.
+
+For website checkpoints, send only a hostname. The server lowercases it and
+removes one leading `www.`. It does not perform eTLD+1/registrable-domain
+merging, so `m.youtube.com` and `music.youtube.com` stay distinct. Schemes,
+paths, queries, fragments, userinfo, and ports are rejected. Never upload a
+full URL, search term, or page title.
+
+`estimated_continuous_app_usage_minutes` is explicitly an estimate. Neither
+client nor server should describe it as exact continuous foreground time.
+The backend only decides whether to offer a rest choice; it never activates
+Shield or changes the next checkpoint.
 
 ### First fatigue check-in
 
@@ -282,7 +315,10 @@ files form one deterministic pair.
 
 | Flow | Request-shape fixture | Response/state-shape fixture |
 |---|---|---|
-| Evaluate | `usage-summary-manual-ios.json` | `rest-suggestion-no-offer.json` |
+| Evaluate legacy | `usage-summary-manual-ios.json` | `rest-suggestion-no-offer.json` |
+| Evaluate current iOS | `usage-summary-device-activity-ios.json` | runtime Canned decision |
+| Evaluate current Mac App | `usage-summary-macos-app.json` | runtime Canned decision |
+| Evaluate current Mac website | `usage-summary-macos-website.json` | runtime Canned decision |
 | Check-in | `fatigue-check-in-cognitive.json` | `fatigue-reflection-follow-up.json` |
 | Recommend | fields from `rest-recommendation-success.json` request examples | `rest-recommendation-success.json` |
 | Start Handoff | `handoff-start-request.json` | `handoff-job-running.json` |
