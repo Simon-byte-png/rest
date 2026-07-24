@@ -29,6 +29,10 @@ final class RestSessionLiveActivityModel: ObservableObject {
     private static let managedSettingsStore = ManagedSettingsStore(
         named: ManagedSettingsStore.Name("hush.interruption")
     )
+    private static let appGroupDefaults = UserDefaults(
+        suiteName: "group.com.JenniferJi.Hush"
+    )
+    private static let lastCompletedRestDateKey = "restSession.lastCompletedDate"
 
     private let defaults: UserDefaults
     private var expectedEndDate: Date?
@@ -239,6 +243,10 @@ final class RestSessionLiveActivityModel: ObservableObject {
         remainingSeconds = 0
         phase = .completed
         clearPersistedSession()
+        Self.appGroupDefaults?.set(
+            Date(),
+            forKey: Self.lastCompletedRestDateKey
+        )
         Self.managedSettingsStore.clearAllSettings()
         await endAllActivities(
             finalPhase: .completed,
