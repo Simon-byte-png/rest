@@ -11,9 +11,8 @@ final class DeviceActivityMonitoringModel: ObservableObject {
 
     private static let appGroupIdentifier = "group.com.JenniferJi.Hush"
     private static let activityName = DeviceActivityName("hush.daily-monitor")
-    private static let eventName = DeviceActivityEvent.Name("hush.one-hour-threshold")
+    private static let checkpointMinutes = Array(stride(from: 5, through: 60, by: 5))
     private static let lastThresholdKey = "deviceActivity.lastThresholdDate"
-    private static let thresholdMinutes = 60
     private static let managedSettingsStore = ManagedSettingsStore(
         named: ManagedSettingsStore.Name("hush.interruption")
     )
@@ -26,7 +25,7 @@ final class DeviceActivityMonitoringModel: ObservableObject {
     }
 
     var monitoringStatusMessage: String {
-        isMonitoring ? "1 小时使用监测已启用" : "尚未启动设备活动监测"
+        isMonitoring ? "每 5 分钟云端检查已启用" : "尚未启动设备活动监测"
     }
 
     var lastThresholdMessage: String {
@@ -58,24 +57,30 @@ final class DeviceActivityMonitoringModel: ObservableObject {
             repeats: true
         )
 
-        let event: DeviceActivityEvent
+        let events = Dictionary(
+            uniqueKeysWithValues: Self.checkpointMinutes.map { minutes in
+                let event: DeviceActivityEvent
 
-        if #available(iOS 17.4, *) {
-            event = DeviceActivityEvent(
-                applications: selection.applicationTokens,
-                categories: selection.categoryTokens,
-                webDomains: selection.webDomainTokens,
-                threshold: DateComponents(minute: Self.thresholdMinutes),
-                includesPastActivity: false
-            )
-        } else {
-            event = DeviceActivityEvent(
-                applications: selection.applicationTokens,
-                categories: selection.categoryTokens,
-                webDomains: selection.webDomainTokens,
-                threshold: DateComponents(minute: Self.thresholdMinutes)
-            )
-        }
+                if #available(iOS 17.4, *) {
+                    event = DeviceActivityEvent(
+                        applications: selection.applicationTokens,
+                        categories: selection.categoryTokens,
+                        webDomains: selection.webDomainTokens,
+                        threshold: DateComponents(minute: minutes),
+                        includesPastActivity: false
+                    )
+                } else {
+                    event = DeviceActivityEvent(
+                        applications: selection.applicationTokens,
+                        categories: selection.categoryTokens,
+                        webDomains: selection.webDomainTokens,
+                        threshold: DateComponents(minute: minutes)
+                    )
+                }
+
+                return (Self.eventName(for: minutes), event)
+            }
+        )
 
         do {
             center.stopMonitoring([Self.activityName])
@@ -83,7 +88,7 @@ final class DeviceActivityMonitoringModel: ObservableObject {
             try center.startMonitoring(
                 Self.activityName,
                 during: schedule,
-                events: [Self.eventName: event]
+                events: events
             )
             errorMessage = nil
             refreshStatus()
@@ -98,5 +103,9 @@ final class DeviceActivityMonitoringModel: ObservableObject {
         Self.managedSettingsStore.clearAllSettings()
         errorMessage = nil
         refreshStatus()
+    }
+
+    private static func eventName(for minutes: Int) -> DeviceActivityEvent.Name {
+        DeviceActivityEvent.Name("hush.checkpoint.\(minutes)")
     }
 }

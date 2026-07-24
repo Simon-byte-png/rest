@@ -6,12 +6,14 @@ import UserNotifications
 
 final class HushDeviceActivityMonitor: DeviceActivityMonitor {
     private static let appGroupIdentifier = "group.com.JenniferJi.Hush"
-    private static let thresholdEventName = DeviceActivityEvent.Name(
-        "hush.one-hour-threshold"
-    )
     private static let selectionKey = "familyActivitySelection"
     private static let interruptionModeKey = "deviceActivity.interruptionMode"
+    private static let agentBaseURLKey = "agent.baseURL"
+    private static let contextLabelKey = "agent.userProvidedContextLabel"
+    private static let lastCompletedRestDateKey = "restSession.lastCompletedDate"
     private static let lastThresholdKey = "deviceActivity.lastThresholdDate"
+    private static let lastAgentDecisionKey = "agent.lastDecisionMessage"
+    private static let lastAgentErrorKey = "agent.lastErrorMessage"
     private static let reminderDatesKey = "deviceActivity.reminderDates"
     private static let reminderCooldown: TimeInterval = 2 * 60 * 60
     private static let dailyReminderLimit = 3
@@ -34,7 +36,7 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
     ) {
         super.eventDidReachThreshold(event, activity: activity)
 
-        guard event == Self.thresholdEventName else {
+        guard let checkpointMinutes = Self.checkpointMinutes(from: event) else {
             return
         }
 
@@ -42,20 +44,110 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
         let userDefaults = UserDefaults(suiteName: Self.appGroupIdentifier)
         userDefaults?.set(now, forKey: Self.lastThresholdKey)
 
-        applyFirmInterruptionIfNeeded(userDefaults: userDefaults)
-        scheduleReminderIfAllowed(now: now, userDefaults: userDefaults)
+        requestAgentDecision(
+            checkpointMinutes: checkpointMinutes,
+            now: now,
+            userDefaults: userDefaults
+        )
     }
 
-    private func applyFirmInterruptionIfNeeded(userDefaults: UserDefaults?) {
+    private func requestAgentDecision(
+        checkpointMinutes: Int,
+        now: Date,
+        userDefaults: UserDefaults?
+    ) {
         guard
-            userDefaults?.string(forKey: Self.interruptionModeKey) == "firm",
+            let baseURL = userDefaults?.string(forKey: Self.agentBaseURLKey),
+            let contextLabel = userDefaults?.string(forKey: Self.contextLabelKey),
+            !contextLabel.isEmpty
+        else {
+            recordAgentError("云端 Agent 尚未配置。", userDefaults: userDefaults)
+            return
+        }
+
+        let minutesSinceLastRest = Self.minutesSinceLastRest(
+            now: now,
+            userDefaults: userDefaults
+        )
+
+        Task {
+            do {
+                let provider = try HTTPRestDecisionProvider(
+                    baseURLString: baseURL
+                )
+                let decision = try await provider.evaluate(
+                    checkpointMinutes: checkpointMinutes,
+                    contextLabel: contextLabel,
+                    minutesSinceLastRest: minutesSinceLastRest
+                )
+                userDefaults?.removeObject(forKey: Self.lastAgentErrorKey)
+                userDefaults?.set(
+                    decision.message,
+                    forKey: Self.lastAgentDecisionKey
+                )
+
+                guard decision.shouldOfferRest else {
+                    return
+                }
+
+                if userDefaults?.string(
+                    forKey: Self.interruptionModeKey
+                ) == "firm" {
+                    applyFirmInterruption(userDefaults: userDefaults)
+                }
+
+                scheduleReminderIfAllowed(
+                    now: now,
+                    contextLabel: contextLabel,
+                    agentMessage: decision.message,
+                    userDefaults: userDefaults
+                )
+            } catch {
+                recordAgentError(
+                    "无法连接云端 Agent，本次未执行打断。",
+                    userDefaults: userDefaults
+                )
+            }
+        }
+    }
+
+    private static func checkpointMinutes(
+        from event: DeviceActivityEvent.Name
+    ) -> Int? {
+        let prefix = "hush.checkpoint."
+        guard event.rawValue.hasPrefix(prefix) else {
+            return nil
+        }
+
+        return Int(event.rawValue.dropFirst(prefix.count))
+    }
+
+    private static func minutesSinceLastRest(
+        now: Date,
+        userDefaults: UserDefaults?
+    ) -> Int {
+        guard
+            let lastRestDate = userDefaults?.object(
+                forKey: Self.lastCompletedRestDateKey
+            ) as? Date
+        else {
+            return 180
+        }
+
+        return max(
+            0,
+            Int(now.timeIntervalSince(lastRestDate) / 60)
+        )
+    }
+
+    private func applyFirmInterruption(userDefaults: UserDefaults?) {
+        guard
             let data = userDefaults?.data(forKey: Self.selectionKey),
             let selection = try? PropertyListDecoder().decode(
                 FamilyActivitySelection.self,
                 from: data
             )
         else {
-            Self.managedSettingsStore.clearAllSettings()
             return
         }
 
@@ -74,7 +166,12 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
             : selection.webDomainTokens
     }
 
-    private func scheduleReminderIfAllowed(now: Date, userDefaults: UserDefaults?) {
+    private func scheduleReminderIfAllowed(
+        now: Date,
+        contextLabel: String,
+        agentMessage: String,
+        userDefaults: UserDefaults?
+    ) {
         let storedDates = userDefaults?.array(forKey: Self.reminderDatesKey) as? [Date] ?? []
         let todayDates = storedDates.filter {
             Calendar.current.isDate($0, inSameDayAs: now)
@@ -93,7 +190,9 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
 
         let content = UNMutableNotificationContent()
         content.title = "Hush"
-        content.body = "已经使用一小时了。现在把这一分钟留给自己吧。"
+        content.body = agentMessage.isEmpty
+            ? "已经使用了一会儿 \(contextLabel)。现在把一分钟留给自己吧。"
+            : agentMessage
         content.sound = .default
         content.userInfo = ["hush_entry": "device_activity"]
 
@@ -110,5 +209,12 @@ final class HushDeviceActivityMonitor: DeviceActivityMonitor {
 
             userDefaults?.set(todayDates + [now], forKey: Self.reminderDatesKey)
         }
+    }
+
+    private func recordAgentError(
+        _ message: String,
+        userDefaults: UserDefaults?
+    ) {
+        userDefaults?.set(message, forKey: Self.lastAgentErrorKey)
     }
 }

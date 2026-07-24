@@ -142,6 +142,7 @@ private struct HushSettingsView: View {
     @StateObject private var monitoring = DeviceActivityMonitoringModel()
     @StateObject private var notifications = NotificationAuthorizationModel()
     @StateObject private var interruptionMode = InterruptionModeModel()
+    @StateObject private var agentSettings = AgentConnectionSettingsModel()
     @State private var isShowingActivityPicker = false
 
     var body: some View {
@@ -212,6 +213,33 @@ private struct HushSettingsView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
 
+                    TextField(
+                        "监测范围名称，例如：小红书",
+                        text: $agentSettings.contextLabel
+                    )
+
+                    TextField(
+                        "https://agent.example.com",
+                        text: $agentSettings.baseURL
+                    )
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                    Text(agentSettings.statusMessage)
+                        .font(.footnote)
+                        .foregroundStyle(
+                            agentSettings.isConfigured
+                                ? Color.secondary
+                                : Color.orange
+                        )
+
+                    if let lastResultMessage = agentSettings.lastResultMessage {
+                        Text(lastResultMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+
                     Text(monitoring.monitoringStatusMessage)
                         .foregroundStyle(.secondary)
 
@@ -224,12 +252,14 @@ private struct HushSettingsView: View {
                             monitoring.stopMonitoring()
                         }
                     } else {
-                        Button("启动 1 小时使用监测") {
+                        Button("启动每 5 分钟云端检查") {
                             monitoring.startMonitoring(selection: selectionStore.selection)
                         }
                         .disabled(
                             !authorization.isAuthorized
                                 || selectionStore.selectedItemCount == 0
+                                || !agentSettings.isConfigured
+                                || !notifications.isAuthorized
                         )
                     }
 
@@ -239,7 +269,7 @@ private struct HushSettingsView: View {
                             .foregroundStyle(.red)
                     }
 
-                    Text("仅统计你选择的范围；强提醒会在达到一小时后使用系统遮罩。")
+                    Text("每 5 分钟询问一次云端 Agent；具体名称只使用你主动填写的内容。")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -293,6 +323,7 @@ private struct HushSettingsView: View {
             .task {
                 authorization.refreshStatus()
                 monitoring.refreshStatus()
+                agentSettings.refreshLastResult()
                 await notifications.refreshStatus()
             }
             .familyActivityPicker(
