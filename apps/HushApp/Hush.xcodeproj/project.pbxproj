@@ -30,6 +30,7 @@
 		A00000000000000000000021 /* Shared/Core/HushLockdownState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000021 /* Shared/Core/HushLockdownState.swift */; };
 		A00000000000000000000022 /* Shared/Core/HushLockdownState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000021 /* Shared/Core/HushLockdownState.swift */; };
 		A00000000000000000000023 /* iOSApp/Platform/LockdownCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000022 /* iOSApp/Platform/LockdownCoordinator.swift */; };
+		A00000000000000000000024 /* MacMenuBar/Platform/MacWebsiteMonitoringModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000023 /* MacMenuBar/Platform/MacWebsiteMonitoringModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +88,7 @@
 		B00000000000000000000020 /* MacMenuBar/Platform/MacUsageMonitoringModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacMenuBar/Platform/MacUsageMonitoringModel.swift; sourceTree = "<group>"; };
 		B00000000000000000000021 /* Shared/Core/HushLockdownState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/Core/HushLockdownState.swift; sourceTree = "<group>"; };
 		B00000000000000000000022 /* iOSApp/Platform/LockdownCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp/Platform/LockdownCoordinator.swift; sourceTree = "<group>"; };
+		B00000000000000000000023 /* MacMenuBar/Platform/MacWebsiteMonitoringModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacMenuBar/Platform/MacWebsiteMonitoringModel.swift; sourceTree = "<group>"; };
 		B00000000000000000000101 /* Hush.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hush.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000102 /* HushMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HushMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000103 /* HushDeviceActivityMonitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HushDeviceActivityMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -181,6 +183,7 @@
 			children = (
 				B00000000000000000000003 /* MacMenuBar/App/HushMacApp.swift */,
 				B00000000000000000000020 /* MacMenuBar/Platform/MacUsageMonitoringModel.swift */,
+				B00000000000000000000023 /* MacMenuBar/Platform/MacWebsiteMonitoringModel.swift */,
 			);
 			name = MacMenuBar;
 			sourceTree = "<group>";
@@ -399,6 +402,7 @@
 				A00000000000000000000003 /* MacMenuBar/App/HushMacApp.swift in Sources */,
 				A00000000000000000000004 /* Shared/Core/HushProduct.swift in Sources */,
 				A00000000000000000000020 /* MacMenuBar/Platform/MacUsageMonitoringModel.swift in Sources */,
+				A00000000000000000000024 /* MacMenuBar/Platform/MacWebsiteMonitoringModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -609,6 +613,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Hush;
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Hush 只读取 Safari 和 Chrome 当前标签页的域名，用于统计网站使用时间；不会读取完整网址、搜索词或页面标题。";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -633,6 +638,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Hush;
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Hush 只读取 Safari 和 Chrome 当前标签页的域名，用于统计网站使用时间；不会读取完整网址、搜索词或页面标题。";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

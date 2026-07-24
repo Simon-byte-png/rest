@@ -124,6 +124,10 @@ final class MacUsageMonitoringModel: ObservableObject {
     private static let continuityGraceInterval: TimeInterval = 60
     private static let checkpointInterval: TimeInterval = 5 * 60
     private static let switchHistoryInterval: TimeInterval = 10 * 60
+    private static let websiteMonitoredBrowserBundleIdentifiers: Set<String> = [
+        "com.apple.Safari",
+        "com.google.Chrome"
+    ]
 
     private let workspace = NSWorkspace.shared
     private let defaults = UserDefaults.standard
@@ -202,6 +206,7 @@ final class MacUsageMonitoringModel: ObservableObject {
         guard
             isMonitoring,
             currentAppIsMonitored,
+            !currentApplicationIsWebsiteMonitoredBrowser,
             currentMonitoredApplication?.trimmedUserProvidedName.isEmpty
                 == false,
             validAgentBaseURL != nil,
@@ -212,6 +217,15 @@ final class MacUsageMonitoringModel: ObservableObject {
         }
 
         return true
+    }
+
+    var currentApplicationIsWebsiteMonitoredBrowser: Bool {
+        guard let bundleIdentifier = activeBundleIdentifier else {
+            return false
+        }
+        return Self.websiteMonitoredBrowserBundleIdentifiers.contains(
+            bundleIdentifier
+        )
     }
 
     var lastCompletedRestDisplay: String {
@@ -591,7 +605,10 @@ final class MacUsageMonitoringModel: ObservableObject {
     private func sendAutomaticCheckpointIfNeeded(now: Date) {
         guard
             let bundleIdentifier = activeBundleIdentifier,
-            currentMonitoredApplication != nil
+            currentMonitoredApplication != nil,
+            !Self.websiteMonitoredBrowserBundleIdentifiers.contains(
+                bundleIdentifier
+            )
         else {
             return
         }

@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct HushMacApp: App {
     @StateObject private var model = MacUsageMonitoringModel()
+    @StateObject private var websiteModel = MacWebsiteMonitoringModel()
 
     var body: some Scene {
         MenuBarExtra(
@@ -14,8 +15,11 @@ struct HushMacApp: App {
         }
 
         Window("Hush", id: "dashboard") {
-            HushMacDashboardView(model: model)
-                .frame(minWidth: 760, minHeight: 540)
+            HushMacDashboardView(
+                model: model,
+                websiteModel: websiteModel
+            )
+                .frame(minWidth: 820, minHeight: 560)
         }
         .defaultSize(width: 860, height: 610)
         .windowStyle(.hiddenTitleBar)
@@ -77,6 +81,7 @@ private struct HushMacMenuView: View {
 
 private struct HushMacDashboardView: View {
     @ObservedObject var model: MacUsageMonitoringModel
+    @ObservedObject var websiteModel: MacWebsiteMonitoringModel
     @State private var isShowingAppPicker = false
 
     var body: some View {
@@ -90,6 +95,7 @@ private struct HushMacDashboardView: View {
                     HStack(alignment: .top, spacing: 18) {
                         VStack(spacing: 18) {
                             currentActivityCard
+                            websiteMonitoringCard
                             monitoredAppsCard
                         }
                         .frame(maxWidth: .infinity)
@@ -102,7 +108,7 @@ private struct HushMacDashboardView: View {
                         .frame(width: 285)
                     }
 
-                    Text("每个关注 App 连续使用满 5 分钟时，Hush 会向已配置的 Agent 发起检查。")
+                    Text("关注的 App 或网站连续使用满 5 分钟时，Hush 会向已配置的 Agent 发起检查。")
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.48))
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -216,8 +222,10 @@ private struct HushMacDashboardView: View {
             Button {
                 if model.isMonitoring {
                     model.stopMonitoring()
+                    websiteModel.stopMonitoring()
                 } else {
                     model.startMonitoring()
+                    websiteModel.startMonitoring()
                 }
             } label: {
                 Label(
@@ -231,6 +239,166 @@ private struct HushMacDashboardView: View {
             .buttonStyle(HushMacPrimaryButtonStyle())
         }
         .hushMacPanel(emphasized: true)
+    }
+
+    private var websiteMonitoringCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                sectionLabel("浏览器内网站")
+                Spacer()
+                Text("Safari · Chrome")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.45))
+            }
+
+            HStack(spacing: 12) {
+                Image(systemName: "globe")
+                    .font(.system(size: 24, weight: .light))
+                    .foregroundStyle(.cyan.opacity(0.85))
+                    .frame(width: 38)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(websiteModel.currentDomain ?? "尚未识别网站")
+                        .font(.system(size: 15, weight: .semibold))
+                    Text(
+                        websiteModel.currentBrowserName
+                            ?? "打开受支持的浏览器后自动发现"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.5))
+                }
+            }
+
+            HStack(spacing: 12) {
+                metric(
+                    title: "网站连续使用",
+                    value: websiteModel.currentContinuousDisplay,
+                    unit: "分:秒"
+                )
+                metric(
+                    title: "网站今日累计",
+                    value: websiteModel.currentDailyDisplay,
+                    unit: "分:秒"
+                )
+            }
+
+            Text(websiteModel.monitoringStatus)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.52))
+
+            Toggle(
+                "自动上传当前网站域名",
+                isOn: $websiteModel.automaticallyUploadDomains
+            )
+            .toggleStyle(.switch)
+
+            Text("关闭时仍在本地统计；点击发送按钮属于单次主动上传。")
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.42))
+
+            Button {
+                websiteModel.sendCurrentWebsite()
+            } label: {
+                if websiteModel.isSendingRequest {
+                    HStack {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("正在请求…")
+                    }
+                    .frame(maxWidth: .infinity)
+                } else {
+                    Text("发送当前网站数据")
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .buttonStyle(.bordered)
+            .disabled(!websiteModel.currentWebsiteCanBeSent)
+
+            Text(websiteModel.uploadStatus)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.52))
+
+            if !websiteModel.frequentWebsites.isEmpty {
+                Divider()
+                    .overlay(.white.opacity(0.12))
+
+                HStack {
+                    Text("常用网站")
+                        .font(.caption.weight(.semibold))
+                    Spacer()
+                    Text("按今日使用时间排序")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+
+                ForEach(websiteModel.frequentWebsites) { website in
+                    HStack(spacing: 10) {
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack {
+                                Text(website.domain)
+                                    .font(
+                                        .system(
+                                            size: 13,
+                                            weight: .semibold
+                                        )
+                                    )
+                                Spacer()
+                                Text(
+                                    HushMacDurationFormatter.display(
+                                        website.dailySeconds
+                                    )
+                                )
+                                .font(.caption2.monospacedDigit())
+                                .foregroundStyle(.white.opacity(0.42))
+                            }
+
+                            TextField(
+                                "可选：发送给 Agent 的名称",
+                                text: Binding(
+                                    get: {
+                                        websiteModel.userProvidedName(
+                                            for: website.domain
+                                        )
+                                    },
+                                    set: { name in
+                                        websiteModel.updateUserProvidedName(
+                                            name,
+                                            for: website.domain
+                                        )
+                                    }
+                                )
+                            )
+                            .textFieldStyle(.roundedBorder)
+                        }
+
+                        Button {
+                            websiteModel.forgetWebsite(website.domain)
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.white.opacity(0.38))
+                        .help("清除 \(website.domain) 的本地记录")
+                    }
+                }
+            }
+
+            if let json = websiteModel.lastRequestJSON {
+                DisclosureGroup("最近网站请求 JSON") {
+                    ScrollView(.horizontal) {
+                        Text(json)
+                            .font(.system(.caption2, design: .monospaced))
+                            .textSelection(.enabled)
+                            .foregroundStyle(.white.opacity(0.72))
+                            .padding(.top, 8)
+                    }
+                    .frame(maxHeight: 180)
+                }
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.68))
+            }
+        }
+        .hushMacPanel()
     }
 
     private var monitoredAppsCard: some View {
@@ -308,6 +476,10 @@ private struct HushMacDashboardView: View {
             }
                 .buttonStyle(.bordered)
                 .disabled(model.availableApplications.isEmpty)
+
+            Text("Safari 和 Chrome 内的网站由上方网站监测处理，不会重复发送浏览器 App 检查点。")
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.4))
         }
         .hushMacPanel()
     }
@@ -428,7 +600,12 @@ private struct HushMacDashboardView: View {
             privacyRow("连续与累计时间", included: true)
             privacyRow("10 分钟内 App 切换次数", included: true)
             privacyRow("距上次休息的时间", included: true)
+            privacyRow(
+                "网站域名（打开自动上传后）",
+                included: websiteModel.automaticallyUploadDomains
+            )
             privacyRow("系统 App 名称 / Bundle ID", included: false)
+            privacyRow("完整 URL / 搜索词 / 页面标题", included: false)
         }
         .hushMacPanel()
     }
@@ -737,5 +914,16 @@ private struct HushMacPrimaryButtonStyle: ButtonStyle {
             )
             .opacity(isEnabled ? 1 : 0.38)
             .scaleEffect(configuration.isPressed ? 0.985 : 1)
+    }
+}
+
+private enum HushMacDurationFormatter {
+    static func display(_ duration: TimeInterval) -> String {
+        let totalSeconds = max(0, Int(duration))
+        return String(
+            format: "%d:%02d",
+            totalSeconds / 60,
+            totalSeconds % 60
+        )
     }
 }
