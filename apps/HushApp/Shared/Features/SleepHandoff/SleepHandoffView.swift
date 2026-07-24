@@ -47,18 +47,11 @@ struct SleepHandoffView: View {
                             .font(HushType.bodyStrong)
                             .foregroundStyle(HushColor.textPrimary)
                         Text("只读未读邮件，并且最多创建草稿；永不自动发送。")
-                            .font(HushType.caption)
+                            .font(HushType.micro)
                             .foregroundStyle(HushColor.textSecondary)
                     }
                 }
                 .tint(HushColor.indigo)
-
-                Divider()
-                    .overlay(HushColor.hairline)
-
-                Label("Sample Mode 使用固定邮箱 fixture，不会访问真实账号。", systemImage: "testtube.2")
-                    .font(HushType.caption)
-                    .foregroundStyle(HushColor.warm)
             }
             .hushPanel()
 
@@ -101,7 +94,7 @@ struct HandoffRunningView: View {
                     .font(.system(size: 26, weight: .medium, design: .rounded))
                     .foregroundStyle(HushColor.textPrimary)
             }
-            .accessibilityLabel("模拟任务预计还需 35 秒")
+            .accessibilityLabel("预计还需 35 秒")
 
             VStack(spacing: HushSpacing.xs) {
                 Text("正在替你把边界说清楚")
@@ -127,14 +120,9 @@ struct HandoffRunningView: View {
             .hushPanel()
 
             Button(action: onShowResult) {
-                Text("Demo：查看完成结果")
+                Text("查看交接结果")
             }
             .buttonStyle(HushPrimaryButtonStyle())
-
-            Text("这是 handoff-job-running fixture 的界面演示，没有读取或创建真实 Gmail 草稿。")
-                .font(HushType.caption)
-                .foregroundStyle(HushColor.textSecondary)
-                .multilineTextAlignment(.center)
 
             Spacer(minLength: HushSpacing.lg)
         }
