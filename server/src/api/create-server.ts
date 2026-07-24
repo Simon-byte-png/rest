@@ -16,8 +16,7 @@ import {
   fatigueCheckInSchema,
   handoffStartRequestSchema,
   restFeedbackSchema,
-  restRecommendationRequestSchema,
-  usageSummarySchema
+  restRecommendationRequestSchema
 } from "../domain/contracts.js";
 import {
   AppError,
@@ -152,9 +151,7 @@ export function createServer(
       true,
       "rest"
     );
-    const input = usageSummarySchema.parse(request.body);
-    assertBodyRequestId(input.request_id, context.requestId);
-    return context.rest.evaluate(input);
+    return context.rest.evaluate(request.body, context.requestId);
   });
 
   server.post("/v1/rest/check-in", async (request, reply) => {

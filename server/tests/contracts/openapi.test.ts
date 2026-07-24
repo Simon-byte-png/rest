@@ -57,6 +57,18 @@ describe("OpenAPI contract", () => {
       }
     }
   });
+
+  it("declares Provider unavailable for Rest evaluate", () => {
+    const document = parse(
+      readFileSync(openApiPath, "utf8")
+    ) as OpenApiDocument;
+
+    expect(
+      document.paths["/v1/rest/evaluate"]!.post!.responses["503"]
+    ).toEqual({
+      $ref: "#/components/responses/Error"
+    });
+  });
 });
 
 interface OpenApiResponse {
