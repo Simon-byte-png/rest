@@ -189,6 +189,39 @@ private struct HushSettingsView: View {
                     }
                     .disabled(authorization.isRequestingAuthorization)
 
+                    ForEach(selectionStore.applicationContexts) { context in
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label(context.token)
+
+                            TextField(
+                                "输入发送给 Agent 的名称",
+                                text: Binding(
+                                    get: {
+                                        selectionStore.userProvidedName(
+                                            for: context.id
+                                        )
+                                    },
+                                    set: { name in
+                                        selectionStore.updateUserProvidedName(
+                                            name,
+                                            for: context.id
+                                        )
+                                    }
+                                )
+                            )
+                            .textInputAutocapitalization(.never)
+                        }
+                        .padding(.vertical, 4)
+                    }
+
+                    if let configurationMessage =
+                        selectionStore.applicationConfigurationMessage
+                    {
+                        Text(configurationMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.orange)
+                    }
+
                     if selectionStore.selectedItemCount > 0 {
                         Button("清除选择", role: .destructive) {
                             monitoring.stopMonitoring()
@@ -196,7 +229,7 @@ private struct HushSettingsView: View {
                         }
                     }
 
-                    Text("选择由 Apple 的系统页面完成。Hush 只在本机保存匿名令牌。")
+                    Text("系统 App 名称仅在本机显示；发送给 Agent 的名称由你逐个填写。")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -212,11 +245,6 @@ private struct HushSettingsView: View {
                     Text(interruptionMode.mode.detail)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-
-                    TextField(
-                        "监测范围名称，例如：小红书",
-                        text: $agentSettings.contextLabel
-                    )
 
                     TextField(
                         "https://agent.example.com",
@@ -247,20 +275,27 @@ private struct HushSettingsView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
 
+                    Button(
+                        monitoring.isMonitoring
+                            ? "更新每 5 分钟云端检查"
+                            : "启动每 5 分钟云端检查"
+                    ) {
+                        monitoring.startMonitoring(
+                            applicationContexts:
+                                selectionStore.configuredApplicationContexts
+                        )
+                    }
+                    .disabled(
+                        !authorization.isAuthorized
+                            || !selectionStore.allApplicationNamesConfigured
+                            || !agentSettings.isConfigured
+                            || !notifications.isAuthorized
+                    )
+
                     if monitoring.isMonitoring {
                         Button("停止监测", role: .destructive) {
                             monitoring.stopMonitoring()
                         }
-                    } else {
-                        Button("启动每 5 分钟云端检查") {
-                            monitoring.startMonitoring(selection: selectionStore.selection)
-                        }
-                        .disabled(
-                            !authorization.isAuthorized
-                                || selectionStore.selectedItemCount == 0
-                                || !agentSettings.isConfigured
-                                || !notifications.isAuthorized
-                        )
                     }
 
                     if let errorMessage = monitoring.errorMessage {
@@ -269,7 +304,7 @@ private struct HushSettingsView: View {
                             .foregroundStyle(.red)
                     }
 
-                    Text("每 5 分钟询问一次云端 Agent；具体名称只使用你主动填写的内容。")
+                    Text("每个 App 独立累计使用时间；达到检查点时，同时发送当天累计时间和估算连续时间。")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -349,8 +384,13 @@ private struct HushSettingsView: View {
 
         if selectionStore.selectedItemCount == 0 {
             monitoring.stopMonitoring()
+        } else if selectionStore.allApplicationNamesConfigured {
+            monitoring.startMonitoring(
+                applicationContexts:
+                    selectionStore.configuredApplicationContexts
+            )
         } else {
-            monitoring.startMonitoring(selection: selectionStore.selection)
+            monitoring.stopMonitoring()
         }
     }
 }

@@ -8,19 +8,10 @@ final class AgentConnectionSettingsModel: ObservableObject {
         }
     }
 
-    @Published var contextLabel: String {
-        didSet {
-            defaults?.set(
-                contextLabel.trimmingCharacters(in: .whitespacesAndNewlines),
-                forKey: Self.contextLabelKey
-            )
-        }
-    }
     @Published private(set) var lastResultMessage: String?
 
     private static let appGroupIdentifier = "group.com.JenniferJi.Hush"
     private static let baseURLKey = "agent.baseURL"
-    private static let contextLabelKey = "agent.userProvidedContextLabel"
     private static let lastDecisionKey = "agent.lastDecisionMessage"
     private static let lastErrorKey = "agent.lastErrorMessage"
 
@@ -30,7 +21,6 @@ final class AgentConnectionSettingsModel: ObservableObject {
         let defaults = UserDefaults(suiteName: Self.appGroupIdentifier)
         self.defaults = defaults
         baseURL = defaults?.string(forKey: Self.baseURLKey) ?? ""
-        contextLabel = defaults?.string(forKey: Self.contextLabelKey) ?? ""
         refreshLastResult()
     }
 
@@ -45,19 +35,19 @@ final class AgentConnectionSettingsModel: ObservableObject {
             return false
         }
 
-        return !contextLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return true
     }
 
     var statusMessage: String {
-        if baseURL.isEmpty && contextLabel.isEmpty {
-            return "填写 HTTPS 服务地址和监测范围名称后才能启动。"
+        if baseURL.isEmpty {
+            return "填写 HTTPS 服务地址后才能启动。"
         }
 
         if !isConfigured {
-            return "服务地址必须是 HTTPS，且监测范围名称不能为空。"
+            return "服务地址必须是有效的 HTTPS 地址。"
         }
 
-        return "云端 Agent 已配置。具体 App 名称来自你的主动填写。"
+        return "云端 Agent 已配置。每个 App 的名称来自你的主动填写。"
     }
 
     func refreshLastResult() {

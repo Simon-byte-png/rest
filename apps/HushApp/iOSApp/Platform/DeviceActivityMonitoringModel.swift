@@ -13,6 +13,9 @@ final class DeviceActivityMonitoringModel: ObservableObject {
     private static let activityName = DeviceActivityName("hush.daily-monitor")
     private static let checkpointMinutes = Array(stride(from: 5, through: 60, by: 5))
     private static let lastThresholdKey = "deviceActivity.lastThresholdDate"
+    private static let eventContextLabelsKey = "deviceActivity.eventContextLabels"
+    private static let eventApplicationTokensKey = "deviceActivity.eventApplicationTokens"
+    private static let appUsageStatesKey = "deviceActivity.appUsageStates"
     private static let managedSettingsStore = ManagedSettingsStore(
         named: ManagedSettingsStore.Name("hush.interruption")
     )
@@ -41,13 +44,18 @@ final class DeviceActivityMonitoringModel: ObservableObject {
         lastThresholdDate = userDefaults?.object(forKey: Self.lastThresholdKey) as? Date
     }
 
-    func startMonitoring(selection: FamilyActivitySelection) {
-        guard
-            !selection.applicationTokens.isEmpty
-                || !selection.categoryTokens.isEmpty
-                || !selection.webDomainTokens.isEmpty
-        else {
-            errorMessage = "请先选择至少一个 App、类别或网站。"
+    func startMonitoring(
+        applicationContexts: [FamilyActivitySelectionStore.ApplicationContext]
+    ) {
+        guard !applicationContexts.isEmpty else {
+            errorMessage = "请先选择至少一个具体 App。"
+            return
+        }
+
+        guard applicationContexts.allSatisfy({
+            !$0.userProvidedName.isEmpty
+        }) else {
+            errorMessage = "请先为每个 App 填写名称。"
             return
         }
 
@@ -57,34 +65,56 @@ final class DeviceActivityMonitoringModel: ObservableObject {
             repeats: true
         )
 
-        let events = Dictionary(
-            uniqueKeysWithValues: Self.checkpointMinutes.map { minutes in
+        var events: [DeviceActivityEvent.Name: DeviceActivityEvent] = [:]
+        var contextLabelsByEvent: [String: String] = [:]
+        var applicationTokensByEvent: [String: Data] = [:]
+
+        for context in applicationContexts {
+            guard
+                let tokenData = try? PropertyListEncoder().encode(context.token)
+            else {
+                continue
+            }
+
+            for minutes in Self.checkpointMinutes {
+                let eventName = Self.eventName(
+                    contextID: context.id,
+                    minutes: minutes
+                )
                 let event: DeviceActivityEvent
 
                 if #available(iOS 17.4, *) {
                     event = DeviceActivityEvent(
-                        applications: selection.applicationTokens,
-                        categories: selection.categoryTokens,
-                        webDomains: selection.webDomainTokens,
+                        applications: [context.token],
                         threshold: DateComponents(minute: minutes),
                         includesPastActivity: false
                     )
                 } else {
                     event = DeviceActivityEvent(
-                        applications: selection.applicationTokens,
-                        categories: selection.categoryTokens,
-                        webDomains: selection.webDomainTokens,
+                        applications: [context.token],
                         threshold: DateComponents(minute: minutes)
                     )
                 }
 
-                return (Self.eventName(for: minutes), event)
+                events[eventName] = event
+                contextLabelsByEvent[eventName.rawValue] =
+                    context.userProvidedName
+                applicationTokensByEvent[eventName.rawValue] = tokenData
             }
-        )
+        }
 
         do {
             center.stopMonitoring([Self.activityName])
             Self.managedSettingsStore.clearAllSettings()
+            userDefaults?.removeObject(forKey: Self.appUsageStatesKey)
+            userDefaults?.set(
+                contextLabelsByEvent,
+                forKey: Self.eventContextLabelsKey
+            )
+            userDefaults?.set(
+                applicationTokensByEvent,
+                forKey: Self.eventApplicationTokensKey
+            )
             try center.startMonitoring(
                 Self.activityName,
                 during: schedule,
@@ -101,11 +131,19 @@ final class DeviceActivityMonitoringModel: ObservableObject {
     func stopMonitoring() {
         center.stopMonitoring([Self.activityName])
         Self.managedSettingsStore.clearAllSettings()
+        userDefaults?.removeObject(forKey: Self.eventContextLabelsKey)
+        userDefaults?.removeObject(forKey: Self.eventApplicationTokensKey)
+        userDefaults?.removeObject(forKey: Self.appUsageStatesKey)
         errorMessage = nil
         refreshStatus()
     }
 
-    private static func eventName(for minutes: Int) -> DeviceActivityEvent.Name {
-        DeviceActivityEvent.Name("hush.checkpoint.\(minutes)")
+    private static func eventName(
+        contextID: UUID,
+        minutes: Int
+    ) -> DeviceActivityEvent.Name {
+        DeviceActivityEvent.Name(
+            "hush.app.\(contextID.uuidString).checkpoint.\(minutes)"
+        )
     }
 }

@@ -2,7 +2,8 @@ import Foundation
 
 protocol RestDecisionProviding {
     func evaluate(
-        checkpointMinutes: Int,
+        dailyAppUsageMinutes: Int,
+        estimatedContinuousAppUsageMinutes: Int,
         contextLabel: String,
         minutesSinceLastRest: Int
     ) async throws -> RestDecision
@@ -41,7 +42,8 @@ final class HTTPRestDecisionProvider: RestDecisionProviding {
     }
 
     func evaluate(
-        checkpointMinutes: Int,
+        dailyAppUsageMinutes: Int,
+        estimatedContinuousAppUsageMinutes: Int,
         contextLabel: String,
         minutesSinceLastRest: Int
     ) async throws -> RestDecision {
@@ -56,7 +58,10 @@ final class HTTPRestDecisionProvider: RestDecisionProviding {
             measuredAt: ISO8601DateFormatter().string(from: Date()),
             platform: "ios",
             triggerSource: "device_activity_threshold",
-            continuousScreenMinutes: checkpointMinutes,
+            dailyAppUsageMinutes: dailyAppUsageMinutes,
+            estimatedContinuousAppUsageMinutes:
+                estimatedContinuousAppUsageMinutes,
+            continuousUsageIsEstimated: true,
             appSwitchesLast10Minutes: nil,
             localHour: Calendar.current.component(.hour, from: Date()),
             minutesSinceLastRest: minutesSinceLastRest,
@@ -104,7 +109,9 @@ private struct UsageSummaryRequest: Encodable {
     let measuredAt: String
     let platform: String
     let triggerSource: String
-    let continuousScreenMinutes: Int
+    let dailyAppUsageMinutes: Int
+    let estimatedContinuousAppUsageMinutes: Int
+    let continuousUsageIsEstimated: Bool
     let appSwitchesLast10Minutes: Int?
     let localHour: Int
     let minutesSinceLastRest: Int
@@ -119,7 +126,11 @@ private struct UsageSummaryRequest: Encodable {
         case measuredAt = "measured_at"
         case platform
         case triggerSource = "trigger_source"
-        case continuousScreenMinutes = "continuous_screen_minutes"
+        case dailyAppUsageMinutes = "daily_app_usage_minutes"
+        case estimatedContinuousAppUsageMinutes =
+            "estimated_continuous_app_usage_minutes"
+        case continuousUsageIsEstimated =
+            "continuous_usage_is_estimated"
         case appSwitchesLast10Minutes = "app_switches_last_10_minutes"
         case localHour = "local_hour"
         case minutesSinceLastRest = "minutes_since_last_rest"
